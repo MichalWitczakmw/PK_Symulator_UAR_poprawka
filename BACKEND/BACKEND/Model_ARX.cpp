@@ -1,87 +1,93 @@
 #include "Model_ARX.h"
 
-Model_ARX::Model_ARX(const std::vector<double>& A, const std::vector<double>& B, int delay, double noise_stddev)
-    : m_A(A), m_B(B), m_delay(std::max(1, delay)), m_noiseStddev(noise_stddev),
-    m_rng(std::random_device{}()), m_noiseDist(0.0, (noise_stddev > 0.0) ? noise_stddev : 1e-9)
+Model_ARX::Model_ARX(const vector<double>& wspolczynnikA, const vector<double>& wspolczynnikB, int opoznienieTransportowe, double zaklocenie)
+    : m_wspolczynnikA(wspolczynnikA), m_wspolczynnikB(wspolczynnikB), m_opoznienieTransportowe(max(1, opoznienieTransportowe)), m_oSSzum(zaklocenie),
+    m_GeneratorZaklocen(random_device{}()), m_rozkladZaklocen(0.0, (zaklocenie > 0.0) ? zaklocenie : 1e-9)
 {
-    m_bufU.assign(B.size(), 0.0);
-    m_bufDelayU.assign(m_delay, 0.0);
-    m_bufY.assign(A.size(), 0.0);
+    m_buforU.assign(wspolczynnikB.size(), 0.0);
+    m_buforOpoznienia.assign(m_opoznienieTransportowe, 0.0);
+    m_buforY.assign(wspolczynnikA.size(), 0.0);
 }
 
-double Model_ARX::symuluj(double u) {
-    // 1. OGRANICZENIE sterowania
-    if (m_ogrSter)
-        u = saturate(u, m_minU, m_maxU);
+double Model_ARX::symuluj(double sygnalSterujacy) 
+{
+	// Ograniczenie sterowania (jeœli aktywne)
+    if (m_ogrSterowania)
+        sygnalSterujacy = nasycenie(sygnalSterujacy, m_minU, m_maxU);
 
-    // 2. Bufor opóŸnienia transportowego
-    m_bufDelayU.push_back(u);
-    double uDelay = m_bufDelayU.front();
-    m_bufDelayU.pop_front();
+    // Aktualizacja bufor opóŸnienia transportowego
+    m_buforOpoznienia.push_back(sygnalSterujacy);
+    double tymczasoweOpoznione = m_buforOpoznienia.front();
+    m_buforOpoznienia.pop_front();
 
-    // 3. Bufor sterowania do splotu z B
-    m_bufU.push_back(uDelay);
-    m_bufU.pop_front();
+    // Aktualizacja bufor sterowania do splotu z B
+    m_buforU.push_back(tymczasoweOpoznione);
+    m_buforU.pop_front();
 
-    // 4. Bufor regulowanej do splotu z A
-    // (bufor uzupe³niany WYLICZON¥ wartoœci¹ w kroku poprzednim)
+    // Obliczenie B
+    double sumaB = 0.0;
+    for (size_t i = 0; i < m_wspolczynnikB.size(); ++i)
+        sumaB += m_wspolczynnikB[i] * m_buforU[m_wspolczynnikB.size() - 1 - i];
 
-    // 5. Obliczenie splotu z B (sterowanie)
-    double sumB = 0.0;
-    for (size_t i = 0; i < m_B.size(); ++i)
-        sumB += m_B[i] * m_bufU[m_B.size() - 1 - i];
+    // Obliczenie A
+    double sumaA = 0.0;
+    for (size_t i = 0; i < m_wspolczynnikA.size(); ++i)
+        sumaA += m_wspolczynnikA[i] * m_buforY[m_wspolczynnikA.size() - 1 - i];
 
-    // 6. Obliczenie splotu z A (regulowana)
-    double sumA = 0.0;
-    for (size_t i = 0; i < m_A.size(); ++i)
-        sumA += m_A[i] * m_bufY[m_A.size() - 1 - i];
+    // Zak³ócenie (jeœli aktywne)
+    double szum = (m_oSSzum > 0.0) ? m_rozkladZaklocen(m_GeneratorZaklocen) : 0.0;
 
-    // 7. Zak³ócenie (jeœli aktywne)
-    double noise = (m_noiseStddev > 0.0) ? m_noiseDist(m_rng) : 0.0;
+    // Obliczenie wyniku
+    double y = sumaB - sumaA + szum;
 
-    // 8. Wynik
-    double y = sumB - sumA + noise;
+	// Ograniczenie regulowanej wartoœci (jeœli aktywne)
+    if (m_ogrRegulowania)
+        y = nasycenie(y, m_minY, m_maxY);
 
-    // 9. OGRANICZENIE regulowanej wartoœci
-    if (m_ogrRegul)
-        y = saturate(y, m_minY, m_maxY);
-
-    // 10. Aktualizacja bufora regulowanej
-    m_bufY.push_back(y);
-    m_bufY.pop_front();
+    // Aktualizacja bufora regulowanej
+    m_buforY.push_back(y);
+    m_buforY.pop_front();
 
     return y;
 }
 
-// --- Konfiguracja ograniczeñ ---
-void Model_ARX::setOgrSter(double minU, double maxU, bool aktywne) {
-    m_minU = minU; m_maxU = maxU; m_ogrSter = aktywne;
+// Konfiguracja ograniczeñ 
+void Model_ARX::setOgrSterowania(double minU, double maxU, bool aktywne) 
+{
+    m_minU = minU; m_maxU = maxU; m_ogrSterowania = aktywne;
 }
-void Model_ARX::setOgrRegul(double minY, double maxY, bool aktywne) {
-    m_minY = minY; m_maxY = maxY; m_ogrRegul = aktywne;
+void Model_ARX::setOgrRegulowania(double minY, double maxY, bool aktywne) 
+{
+    m_minY = minY; m_maxY = maxY; m_ogrRegulowania = aktywne;
 }
-void Model_ARX::setOgrSterAktywne(bool aktywne) {
-    m_ogrSter = aktywne;
+void Model_ARX::setOgrSterowaniaAktywne(bool aktywne) 
+{
+    m_ogrSterowania = aktywne;
 }
-void Model_ARX::setOgrRegulAktywne(bool aktywne) {
-    m_ogrRegul = aktywne;
+void Model_ARX::setOgrRegulowaniaAktywne(bool aktywne) 
+{
+    m_ogrRegulowania = aktywne;
 }
 
-// --- Zmiana parametrów modelu ---
-void Model_ARX::setA(const std::vector<double>& A) {
-    m_A = A;
-    m_bufY.assign(A.size(), 0.0);
+// Zmiana parametrów modelu
+void Model_ARX::setA(const std::vector<double>& A) 
+{
+    m_wspolczynnikA = A;
+    m_buforY.assign(A.size(), 0.0);
 }
-void Model_ARX::setB(const std::vector<double>& B) {
-    m_B = B;
-    m_bufU.assign(B.size(), 0.0);
+void Model_ARX::setB(const std::vector<double>& B) 
+{
+    m_wspolczynnikB = B;
+    m_buforU.assign(B.size(), 0.0);
 }
-void Model_ARX::setDelay(int delay) {
-    m_delay = std::max(1, delay);
-    m_bufDelayU.assign(m_delay, 0.0);
+void Model_ARX::setopoznienieTransport(int opoznienieTransportowe) 
+{
+    m_opoznienieTransportowe = std::max(1, opoznienieTransportowe);
+    m_buforOpoznienia.assign(m_opoznienieTransportowe, 0.0);
 }
-void Model_ARX::setNoiseStddev(double stddev) {
-    m_noiseStddev = stddev;
-    double safeStddev = (stddev > 0.0) ? stddev : 1e-9;
-    m_noiseDist = std::normal_distribution<double>(0.0, safeStddev);
+void Model_ARX::setOdchylenieZaklocen(double odchylenieZaklocenia) 
+{
+    m_oSSzum = odchylenieZaklocenia;
+    double bezpieczneOdchylenie = (odchylenieZaklocenia > 0.0) ? odchylenieZaklocenia : 1e-9;
+    m_rozkladZaklocen = std::normal_distribution<double>(0.0, bezpieczneOdchylenie);
 }
