@@ -1,2 +1,8 @@
 ﻿  Model_ARX.cpp
-  BACKEND.vcxproj -> C:\Users\FreddekMW\Documents\GitHub\PK_Symulator_UAR_poprawka\BACKEND\x64\Debug\BACKEND.exe
+  Prosty_UAR.cpp
+  Regulator_OnOFF.cpp
+  Regulator_PID.cpp
+  Testy_UAR.cpp
+  Generowanie kodu...
+  LINK : nie znaleziono elementu C:\Users\micha\Documents\GitHub\PK_Symulator_UAR_poprawka\BACKEND\x64\Debug\BACKEND.exe ani nie został on skompilowany podczas ostatniego konsolidowania przyrostowego; zostanie wykonana pełna konsolidacja
+  BACKEND.vcxproj -> C:\Users\micha\Documents\GitHub\PK_Symulator_UAR_poprawka\BACKEND\x64\Debug\BACKEND.exe
