@@ -124,14 +124,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Model_ARX.h" />
-    <ClInclude Include="Prosty_UAR.h" />
-    <ClInclude Include="Regulator_OnOFF.h" />
+    <ClInclude Include="SymulacjaUAR.h" />
     <ClInclude Include="Regulator_PID.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Model_ARX.cpp" />
-    <ClCompile Include="Prosty_UAR.cpp" />
-    <ClCompile Include="Regulator_OnOFF.cpp" />
+    <ClCompile Include="SymulacjaUAR.cpp" />
     <ClCompile Include="Regulator_PID.cpp" />
     <ClCompile Include="Testy_UAR.cpp" />
   </ItemGroup>

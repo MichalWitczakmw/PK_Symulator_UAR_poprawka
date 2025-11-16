@@ -21,10 +21,7 @@
     <ClInclude Include="Regulator_PID.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="Prosty_UAR.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="Regulator_OnOFF.h">
+    <ClInclude Include="SymulacjaUAR.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
   </ItemGroup>
@@ -38,10 +35,7 @@
     <ClCompile Include="Regulator_PID.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="Prosty_UAR.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="Regulator_OnOFF.cpp">
+    <ClCompile Include="SymulacjaUAR.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
   </ItemGroup>

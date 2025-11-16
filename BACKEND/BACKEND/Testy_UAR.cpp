@@ -5,8 +5,7 @@
 #include <vector>
 #include "Model_ARX.h"
 #include "Regulator_PID.h"
-#include "Regulator_OnOFF.h" // Tylko sekcje 3 osobowe
-#include "Prosty_UAR.h"
+#include "SymulacjaUAR.h"
 
 #define DEBUG  // ustaw na MAIN aby skompilować program docelowy / ustaw na DEBUG aby skompilować program testujacy 
 
@@ -190,7 +189,7 @@ void TESTY_Model_ARX::test_skokJednostkowy_3()
 		std::cerr << "INTERUPTED! (niespodziwany wyjatek)\n";
 	}
 }
-/*
+
 
 // testy dla samego Regulatora PID:
 
@@ -222,7 +221,7 @@ void TESTY_RegulatorPID::test_P_brakPobudzenia()
 	try
 	{
 		// Przygotowanie danych:
-		RegulatorPID instancjaTestowa(0.5);
+		Regulator_PID instancjaTestowa(0.5);
 		constexpr size_t LICZ_ITER = 30;
 		std::vector<double> sygWe(LICZ_ITER);      // pobudzenie modelu (tu same 0)
 		std::vector<double> spodzSygWy(LICZ_ITER); // spodziewana sekwencja wy (tu same 0)
@@ -250,7 +249,7 @@ void TESTY_RegulatorPID::test_P_skokJednostkowy()
 	try
 	{
 		// Przygotowanie danych:
-		RegulatorPID instancjaTestowa(0.5);
+		Regulator_PID instancjaTestowa(0.5);
 		constexpr size_t LICZ_ITER = 30;
 		std::vector<double> sygWe(LICZ_ITER);      // pobudzenie modelu 
 		std::vector<double> spodzSygWy(LICZ_ITER); // spodziewana sekwencja wy 
@@ -283,7 +282,7 @@ void TESTY_RegulatorPID::test_PI_skokJednostkowy_1()
 	try
 	{
 		// Przygotowanie danych:
-		RegulatorPID instancjaTestowa(0.5, 1.0);
+		Regulator_PID instancjaTestowa(0.5, 1.0);
 		constexpr size_t LICZ_ITER = 30;
 		std::vector<double> sygWe(LICZ_ITER);      // pobudzenie modelu 
 		std::vector<double> spodzSygWy(LICZ_ITER); // spodziewana sekwencja wy 
@@ -317,7 +316,7 @@ void TESTY_RegulatorPID::test_PI_skokJednostkowy_2()
 	try
 	{
 		// Przygotowanie danych:
-		RegulatorPID instancjaTestowa(0.5, 10.0);
+		Regulator_PID instancjaTestowa(0.5, 10.0);
 		constexpr size_t LICZ_ITER = 30;
 		std::vector<double> sygWe(LICZ_ITER);      // pobudzenie modelu 
 		std::vector<double> spodzSygWy(LICZ_ITER); // spodziewana sekwencja wy 
@@ -350,7 +349,7 @@ void TESTY_RegulatorPID::test_PID_skokJednostkowy()
 	try
 	{
 		// Przygotowanie danych:
-		RegulatorPID instancjaTestowa(0.5, 10.0, 0.2);
+		Regulator_PID instancjaTestowa(0.5, 10.0, 0.2);
 		constexpr size_t LICZ_ITER = 30;
 		std::vector<double> sygWe(LICZ_ITER);      // pobudzenie modelu 
 		std::vector<double> spodzSygWy(LICZ_ITER); // spodziewana sekwencja wy 
@@ -383,7 +382,7 @@ void TESTY_RegulatorPID::test_PI_skokJednostkowy_3()
 	try
 	{
 		// Przygotowanie danych:
-		RegulatorPID instancjaTestowa(0.5, 10.0);
+		Regulator_PID instancjaTestowa(0.5, 10.0);
 		constexpr size_t LICZ_ITER = 30;
 		std::vector<double> sygWe(LICZ_ITER);      // pobudzenie modelu 
 		std::vector<double> spodzSygWy(LICZ_ITER); // spodziewana sekwencja wy 
@@ -399,11 +398,11 @@ void TESTY_RegulatorPID::test_PI_skokJednostkowy_3()
 		for (int i = 0; i < LICZ_ITER; i++)
 		{
 			if (i == LICZ_ITER * 1 / 5) // przelaczenie na wew. liczenie calki - nie powinno być zauważalane
-				instancjaTestowa.setLiczCalk(RegulatorPID::LiczCalk::Wew);
+				instancjaTestowa.setLiczCalk(Regulator_PID::LiczCalk::Wew);
 			if (i == LICZ_ITER * 2 / 5) // zmiana stalej calkowania - powinna byc tylko zmiana nachylenia 
 				instancjaTestowa.setStalaCalk(5.0);
 			if (i == LICZ_ITER * 3 / 5) // przelaczenie na zew. liczenie calki - nie powinno być zauważalane
-				instancjaTestowa.setLiczCalk(RegulatorPID::LiczCalk::Zew);
+				instancjaTestowa.setLiczCalk(Regulator_PID::LiczCalk::Zew);
 			if (i == LICZ_ITER * 4 / 5) // zmiana stalej calkowania - powinien wsytapic skok wartosci i zmiana nachylenia 
 				instancjaTestowa.setStalaCalk(10.0);
 			faktSygWy[i] = instancjaTestowa.symuluj(sygWe[i]);
@@ -421,7 +420,7 @@ void TESTY_RegulatorPID::test_PI_skokJednostkowy_3()
 		std::cerr << "INTERUPTED! (niespodziwany wyjatek)\n";
 	}
 }
-
+/*
 // testy dla samego Regulatora ON/OFF:
 
 namespace TESTY_RegulatorOnOff
@@ -773,8 +772,8 @@ void TESTY_ProstyUAR::test_UAR_5_skokJednostkowyONOFF()
 int main()
 {
 	
-	TESTY_Model_ARX::wykonaj_testy();
-	//TESTY_RegulatorPID::wykonaj_testy();
+	//TESTY_Model_ARX::wykonaj_testy();
+	TESTY_RegulatorPID::wykonaj_testy();
 	//TESTY_RegulatorOnOff::wykonaj_testy();
 	//TESTY_ProstyUAR::wykonaj_testy();
 }
