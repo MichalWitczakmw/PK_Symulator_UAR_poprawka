@@ -3,16 +3,36 @@
   "WorkspaceRootPath": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Regulator_PID.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|solutionrelative:BACKEND\\Regulator_PID.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\SymulacjaUAR.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|solutionrelative:BACKEND\\SymulacjaUAR.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Testy_UAR.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|solutionrelative:BACKEND\\Testy_UAR.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Generator.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|solutionrelative:BACKEND\\Generator.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Generator.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|solutionrelative:BACKEND\\Generator.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Model_ARX.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|solutionrelative:BACKEND\\Model_ARX.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Model_ARX.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|solutionrelative:BACKEND\\Model_ARX.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Regulator_PID.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|solutionrelative:BACKEND\\Regulator_PID.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Regulator_PID.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{472271E4-E778-47DF-9163-CBBEF1532E97}|BACKEND\\BACKEND.vcxproj|solutionrelative:BACKEND\\Regulator_PID.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -32,7 +52,7 @@
               "RelativeDocumentMoniker": "BACKEND\\Testy_UAR.cpp",
               "ToolTip": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Testy_UAR.cpp",
               "RelativeToolTip": "BACKEND\\Testy_UAR.cpp",
-              "ViewState": "AgIAAMAAAAAAAAAAAAAkwOAAAAAiAAAAAAAAAA==",
+              "ViewState": "AgIAAKYCAAAAAAAAAAAAALQCAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-10-13T16:17:01.981Z",
               "IsPinned": true,
@@ -41,25 +61,90 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "SymulacjaUAR.h",
+              "DocumentMoniker": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\SymulacjaUAR.h",
+              "RelativeDocumentMoniker": "BACKEND\\SymulacjaUAR.h",
+              "ToolTip": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\SymulacjaUAR.h",
+              "RelativeToolTip": "BACKEND\\SymulacjaUAR.h",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAAADAAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-16T20:33:28.827Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Model_ARX.h",
+              "DocumentMoniker": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Model_ARX.h",
+              "RelativeDocumentMoniker": "BACKEND\\Model_ARX.h",
+              "ToolTip": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Model_ARX.h",
+              "RelativeToolTip": "BACKEND\\Model_ARX.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-16T20:22:36.776Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Model_ARX.cpp",
+              "DocumentMoniker": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Model_ARX.cpp",
+              "RelativeDocumentMoniker": "BACKEND\\Model_ARX.cpp",
+              "ToolTip": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Model_ARX.cpp",
+              "RelativeToolTip": "BACKEND\\Model_ARX.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-11-16T20:22:35.866Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Generator.cpp",
+              "DocumentMoniker": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Generator.cpp",
+              "RelativeDocumentMoniker": "BACKEND\\Generator.cpp",
+              "ToolTip": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Generator.cpp",
+              "RelativeToolTip": "BACKEND\\Generator.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-11-16T20:07:03.003Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Generator.h",
+              "DocumentMoniker": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Generator.h",
+              "RelativeDocumentMoniker": "BACKEND\\Generator.h",
+              "ToolTip": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Generator.h",
+              "RelativeToolTip": "BACKEND\\Generator.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-16T19:39:46.944Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
               "Title": "Regulator_PID.h",
               "DocumentMoniker": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Regulator_PID.h",
               "RelativeDocumentMoniker": "BACKEND\\Regulator_PID.h",
               "ToolTip": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Regulator_PID.h",
               "RelativeToolTip": "BACKEND\\Regulator_PID.h",
-              "ViewState": "AgIAAEUAAAAAAAAAAAAAAD8AAAAiAAAAAAAAAA==",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAAAC0AAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2025-11-16T16:13:38.487Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 6,
               "Title": "Regulator_PID.cpp",
               "DocumentMoniker": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Regulator_PID.cpp",
               "RelativeDocumentMoniker": "BACKEND\\Regulator_PID.cpp",
               "ToolTip": "C:\\Users\\FreddekMW\\Documents\\GitHub\\PK_Symulator_UAR_poprawka\\BACKEND\\BACKEND\\Regulator_PID.cpp",
               "RelativeToolTip": "BACKEND\\Regulator_PID.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAAAEsAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-11-16T16:13:35.188Z",
               "EditorCaption": ""

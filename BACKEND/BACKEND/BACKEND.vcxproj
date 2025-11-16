@@ -123,11 +123,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Generator.h" />
     <ClInclude Include="Model_ARX.h" />
     <ClInclude Include="SymulacjaUAR.h" />
     <ClInclude Include="Regulator_PID.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Generator.cpp" />
     <ClCompile Include="Model_ARX.cpp" />
     <ClCompile Include="SymulacjaUAR.cpp" />
     <ClCompile Include="Regulator_PID.cpp" />

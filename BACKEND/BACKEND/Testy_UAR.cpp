@@ -193,7 +193,7 @@ void TESTY_Model_ARX::test_skokJednostkowy_3()
 
 // testy dla samego Regulatora PID:
 
-namespace TESTY_RegulatorPID
+namespace TESTY_Regulator_PID
 {
 	void wykonaj_testy();
 	void test_P_brakPobudzenia();
@@ -204,7 +204,7 @@ namespace TESTY_RegulatorPID
 	void test_PI_skokJednostkowy_3();
 }
 
-void TESTY_RegulatorPID::wykonaj_testy()
+void TESTY_Regulator_PID::wykonaj_testy()
 {
 	test_P_brakPobudzenia();
 	test_P_skokJednostkowy();
@@ -214,7 +214,7 @@ void TESTY_RegulatorPID::wykonaj_testy()
 	test_PI_skokJednostkowy_3();
 }
 
-void TESTY_RegulatorPID::test_P_brakPobudzenia()
+void TESTY_Regulator_PID::test_P_brakPobudzenia()
 {
 	//Sygnatura testu:
 	std::cerr << "RegP (k = 0.5) -> test zerowego pobudzenia: ";
@@ -241,7 +241,7 @@ void TESTY_RegulatorPID::test_P_brakPobudzenia()
 	}
 }
 
-void TESTY_RegulatorPID::test_P_skokJednostkowy()
+void TESTY_Regulator_PID::test_P_skokJednostkowy()
 {
 	//Sygnatura testu:
 	std::cerr << "RegP (k = 0.5) -> test skoku jednostkowego: ";
@@ -274,7 +274,7 @@ void TESTY_RegulatorPID::test_P_skokJednostkowy()
 	}
 }
 
-void TESTY_RegulatorPID::test_PI_skokJednostkowy_1()
+void TESTY_Regulator_PID::test_PI_skokJednostkowy_1()
 {
 	//Sygnatura testu:
 	std::cerr << "RegPI (k = 0.5, TI = 1.0) -> test skoku jednostkowego nr 1: ";
@@ -308,7 +308,7 @@ void TESTY_RegulatorPID::test_PI_skokJednostkowy_1()
 	}
 }
 
-void TESTY_RegulatorPID::test_PI_skokJednostkowy_2()
+void TESTY_Regulator_PID::test_PI_skokJednostkowy_2()
 {
 	//Sygnatura testu:
 	std::cerr << "RegPI (k = 0.5, TI = 10.0) -> test skoku jednostkowego nr 2: ";
@@ -341,7 +341,7 @@ void TESTY_RegulatorPID::test_PI_skokJednostkowy_2()
 	}
 }
 
-void TESTY_RegulatorPID::test_PID_skokJednostkowy()
+void TESTY_Regulator_PID::test_PID_skokJednostkowy()
 {
 	//Sygnatura testu:
 	std::cerr << "RegPID (k = 0.5, TI = 10.0, TD = 0.2) -> test skoku jednostkowego: ";
@@ -374,7 +374,7 @@ void TESTY_RegulatorPID::test_PID_skokJednostkowy()
 	}
 }
 
-void TESTY_RegulatorPID::test_PI_skokJednostkowy_3() 
+void TESTY_Regulator_PID::test_PI_skokJednostkowy_3() 
 {
 	//Sygnatura testu:
 	std::cerr << "RegPI (k = 0.5, TI = 10.0 -> 5.0 -> 10.0) -> test skoku jednostkowego nr 3: ";
@@ -526,41 +526,41 @@ void TESTY_RegulatorOnOff::test_skokPonizHist()
 		std::cerr << "INTERUPTED! (niespodziwany wyjatek)\n";
 	}
 }
-
+*/
 
 // testy dla pelnego UAR:
 
-namespace TESTY_ProstyUAR
+namespace TESTY_SymulacjaUAR
 {
 	void wykonaj_testy();
 	void test_UAR_1_brakPobudzenia();
 	void test_UAR_1_skokJednostkowyPID();
 	void test_UAR_2_skokJednostkowyPID();
 	void test_UAR_3_skokJednostkowyPID();
-	void test_UAR_4_skokJednostkowyONOFF();
-	void test_UAR_5_skokJednostkowyONOFF();
+	//void test_UAR_4_skokJednostkowyONOFF();
+	//void test_UAR_5_skokJednostkowyONOFF();
 }
 
-void TESTY_ProstyUAR::wykonaj_testy()
+void TESTY_SymulacjaUAR::wykonaj_testy()
 {
 	test_UAR_1_brakPobudzenia();
 	test_UAR_1_skokJednostkowyPID();
 	test_UAR_2_skokJednostkowyPID();
 	test_UAR_3_skokJednostkowyPID();
-	test_UAR_4_skokJednostkowyONOFF();
-	test_UAR_5_skokJednostkowyONOFF();
+	//test_UAR_4_skokJednostkowyONOFF();
+	//test_UAR_5_skokJednostkowyONOFF();
 }
 
-void TESTY_ProstyUAR::test_UAR_1_brakPobudzenia()
+void TESTY_SymulacjaUAR::test_UAR_1_brakPobudzenia()
 {
 	//Sygnatura testu:
 	std::cerr << "UAR_1 -> test zerowego pobudzenia: ";
 	try
 	{
 		// Przygotowanie danych:
-		RegulatorPID testPID(0.5, 5.0, 0.2);
+		Regulator_PID testPID(0.5, 5.0, 0.2);
 		Model_ARX testARX({ -0.4 }, { 0.6 });
-		ProstyUAR instancjaTestowa(testARX, testPID);
+		SymulacjaUAR instancjaTestowa(testARX, testPID);
 		constexpr size_t LICZ_ITER = 30;
 		std::vector<double> sygWe(LICZ_ITER);      // pobudzenie modelu (tu same 0)
 		std::vector<double> spodzSygWy(LICZ_ITER); // spodziewana sekwencja wy (tu same 0)
@@ -580,16 +580,16 @@ void TESTY_ProstyUAR::test_UAR_1_brakPobudzenia()
 	}
 }
 
-void TESTY_ProstyUAR::test_UAR_1_skokJednostkowyPID()
+void TESTY_SymulacjaUAR::test_UAR_1_skokJednostkowyPID()
 {
 	//Sygnatura testu:
 	std::cerr << "UAR_1 PID -> test skoku jednostkowego: ";
 	try
 	{
 		// Przygotowanie danych:
-		RegulatorPID testPID(0.5, 5.0, 0.2);
+		Regulator_PID testPID(0.5, 5.0, 0.2);
 		Model_ARX testARX({ -0.4 }, { 0.6 });
-		ProstyUAR instancjaTestowa(testARX, testPID);
+		SymulacjaUAR instancjaTestowa(testARX, testPID);
 		constexpr size_t LICZ_ITER = 30;
 		std::vector<double> sygWe(LICZ_ITER);      // pobudzenie modelu (tu same 0)
 		std::vector<double> spodzSygWy(LICZ_ITER); // spodziewana sekwencja wy (tu same 0)
@@ -618,16 +618,16 @@ void TESTY_ProstyUAR::test_UAR_1_skokJednostkowyPID()
 	}
 }
 
-void TESTY_ProstyUAR::test_UAR_2_skokJednostkowyPID()
+void TESTY_SymulacjaUAR::test_UAR_2_skokJednostkowyPID()
 {
 	//Sygnatura testu:
 	std::cerr << "UAR_2 PID (k = 2) -> test skoku jednostkowego: ";
 	try
 	{
 		// Przygotowanie danych:
-		RegulatorPID testPID(0.5, 5.0, 0.2);
+		Regulator_PID testPID(0.5, 5.0, 0.2);
 		Model_ARX testARX({ -0.4 }, { 0.6 }, 2);
-		ProstyUAR instancjaTestowa(testARX, testPID);
+		SymulacjaUAR instancjaTestowa(testARX, testPID);
 		constexpr size_t LICZ_ITER = 30;
 		std::vector<double> sygWe(LICZ_ITER);      // pobudzenie modelu (tu same 0)
 		std::vector<double> spodzSygWy(LICZ_ITER); // spodziewana sekwencja wy (tu same 0)
@@ -655,16 +655,16 @@ void TESTY_ProstyUAR::test_UAR_2_skokJednostkowyPID()
 	}
 }
 
-void TESTY_ProstyUAR::test_UAR_3_skokJednostkowyPID()
+void TESTY_SymulacjaUAR::test_UAR_3_skokJednostkowyPID()
 {
 	//Sygnatura testu:
 	std::cerr << "UAR_3 PID (kP=1.0,Ti=2.0) -> test skoku jednostkowego: ";
 	try
 	{
 		// Przygotowanie danych:
-		RegulatorPID testPID(1.0, 2.0, 0.2);
+		Regulator_PID testPID(1.0, 2.0, 0.2);
 		Model_ARX testARX({ -0.4 }, { 0.6 }, 1);
-		ProstyUAR instancjaTestowa(testARX, testPID);
+		SymulacjaUAR instancjaTestowa(testARX, testPID);
 		constexpr size_t LICZ_ITER = 30;
 		std::vector<double> sygWe(LICZ_ITER);      // pobudzenie modelu (tu same 0)
 		std::vector<double> spodzSygWy(LICZ_ITER); // spodziewana sekwencja wy (tu same 0)
@@ -691,8 +691,8 @@ void TESTY_ProstyUAR::test_UAR_3_skokJednostkowyPID()
 		std::cerr << "INTERUPTED! (niespodziwany wyjatek)\n";
 	}
 }
-
-void TESTY_ProstyUAR::test_UAR_4_skokJednostkowyONOFF()
+/*
+void TESTY_SymulacjaUAR::test_UAR_4_skokJednostkowyONOFF()
 {
 	//Sygnatura testu:
 	std::cerr << "UAR_4 ONOFF (uON=2.0,Hist=0.1) -> test skoku jednostkowego: ";
@@ -702,7 +702,7 @@ void TESTY_ProstyUAR::test_UAR_4_skokJednostkowyONOFF()
 		RegulatorOnOff testOnOff(2.0,0.1);
 		// dynamika obiektu musi być bardzo wolna aby regulator OnOff miał szanse działać poprawnie.
 		Model_ARX testARX({ -0.95 }, { 0.05 }, 1); 
-		ProstyUAR instancjaTestowa(testARX, testOnOff);
+		SymulacjaUAR instancjaTestowa(testARX, testOnOff);
 		constexpr size_t LICZ_ITER = 30;
 		std::vector<double> sygWe(LICZ_ITER);      // pobudzenie modelu (tu same 0)
 		std::vector<double> spodzSygWy(LICZ_ITER); // spodziewana sekwencja wy (tu same 0)
@@ -731,7 +731,7 @@ void TESTY_ProstyUAR::test_UAR_4_skokJednostkowyONOFF()
 	}
 }
 
-void TESTY_ProstyUAR::test_UAR_5_skokJednostkowyONOFF()
+void TESTY_SymulacjaUAR::test_UAR_5_skokJednostkowyONOFF()
 {
 	//Sygnatura testu:
 	std::cerr << "UAR_5 ONOFF (uON=4.0,Hist=0.2) -> test skoku jednostkowego: ";
@@ -741,7 +741,7 @@ void TESTY_ProstyUAR::test_UAR_5_skokJednostkowyONOFF()
 		RegulatorOnOff testOnOff(4.0, 0.2);
 		// dynamika obiektu musi być bardzo wolna aby regulator OnOff miał szanse działać poprawnie.
 		Model_ARX testARX({ -0.95 }, { 0.05 }, 1);
-		ProstyUAR instancjaTestowa(testARX, testOnOff);
+		SymulacjaUAR instancjaTestowa(testARX, testOnOff);
 		constexpr size_t LICZ_ITER = 30;
 		std::vector<double> sygWe(LICZ_ITER);      // pobudzenie modelu (tu same 0)
 		std::vector<double> spodzSygWy(LICZ_ITER); // spodziewana sekwencja wy (tu same 0)
@@ -772,10 +772,10 @@ void TESTY_ProstyUAR::test_UAR_5_skokJednostkowyONOFF()
 int main()
 {
 	
-	//TESTY_Model_ARX::wykonaj_testy();
-	TESTY_RegulatorPID::wykonaj_testy();
+	TESTY_Model_ARX::wykonaj_testy();
+	TESTY_Regulator_PID::wykonaj_testy();
 	//TESTY_RegulatorOnOff::wykonaj_testy();
-	//TESTY_ProstyUAR::wykonaj_testy();
+	TESTY_SymulacjaUAR::wykonaj_testy();
 }
 
 #endif
