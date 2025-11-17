@@ -4,16 +4,25 @@
 #include <cmath>
 #include <stdexcept>
 
+enum class TypSygna³u { Prostok¹t, Sinus };
+
 class Generator
 {
 public:
-    enum class TypSygna³u { Prostok¹t, Sinus };
+    
 
-    Generator(TypSygna³u typ = TypSygna³u::Prostok¹t,
+    Generator(TypSygna³u typ = TypSygna³u::Sinus,
         double amplituda = 1.0,
         double okres = 100.0,
         double wypelnienie = 0.5,
-        double skladowaStala = 0.0);
+        double skladowaStala = 0.0)
+        : m_typ(typ),
+          m_amplituda(amplituda),
+          m_okres(okres),
+          m_wypelnienie(wypelnienie),
+          m_skladowaStala(skladowaStala),
+		  m_indeks(0)
+    {}
 
     void setTyp(TypSygna³u typ) { m_typ = typ; }
     void setAmplituda(double amp) { m_amplituda = amp; }
@@ -23,6 +32,13 @@ public:
 
     double generujWartosc();
     void reset() { m_indeks = 0; }
+
+    TypSygna³u getTyp() const { return m_typ; }
+    double getAmplituda() const { return m_amplituda; }
+    double getOkres() const { return m_okres; }
+    double getWypelnienie() const { return m_wypelnienie; }
+    double getSkladowaStala() const { return m_skladowaStala; }
+
 
 private:
     TypSygna³u m_typ;

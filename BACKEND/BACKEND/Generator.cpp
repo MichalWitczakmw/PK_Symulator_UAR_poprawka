@@ -1,17 +1,5 @@
 #include "Generator.h"
 
-Generator::Generator(TypSygna³u typ,
-    double amplituda,
-    double okres,
-    double wypelnienie,
-    double skladowaStala)
-    : m_typ(typ),
-    m_amplituda(amplituda),
-    m_okres(okres),
-    m_wypelnienie(wypelnienie),
-    m_skladowaStala(skladowaStala),
-    m_indeks(0)
-{}
 
 double Generator::generujWartosc() 
 {

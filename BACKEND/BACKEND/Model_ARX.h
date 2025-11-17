@@ -56,5 +56,16 @@ public:
     void setopoznienieTransport(int opoznienieTransportowe);
     void setOdchylenieZaklocen(double odchylenieZaklocenia);
 
+    const vector<double>& getA() const { return m_wspolczynnikA; }
+    const vector<double>& getB() const { return m_wspolczynnikB; }
+    int getOpoznienieTransport() const { return m_opoznienieTransportowe; }
+    double getOdchylenieZaklocen() const { return m_oSSzum; }
+    double getMinU() const { return m_minU; }
+    double getMaxU() const { return m_maxU; }
+    double getMinY() const { return m_minY; }
+    double getMaxY() const { return m_maxY; }
+    bool getJestOgrSterowaniaAktywne() const { return m_ogrSterowania; }
+    bool getJestgrRegulowaniaAktywne() const { return m_ogrRegulowania; }
+
 
 };

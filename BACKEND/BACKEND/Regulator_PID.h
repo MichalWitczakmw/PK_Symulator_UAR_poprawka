@@ -30,6 +30,13 @@ public:
     double getSumaEdivTi() const;
     double getUchybPoprzedni() const;
 
+    double getKp() const { return m_kp; }
+    double getTi() const { return m_ti; }
+    double getTd() const { return m_td; }
+    double getOgrMin() const { return m_ogrMin; }
+    double getOgrMax() const { return m_ogrMax; }
+    LiczCalk getLiczCalk() const { return m_liczCalk; }
+
 private:
     double ograniczDoZakresu(double val, double min, double max) const;
 
