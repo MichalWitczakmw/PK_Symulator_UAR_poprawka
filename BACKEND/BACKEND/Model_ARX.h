@@ -8,7 +8,6 @@ using namespace std;
 
 class Model_ARX 
 {
-
 private:
     vector<double> m_wspolczynnikA, m_wspolczynnikB;
     int m_opoznienieTransportowe;

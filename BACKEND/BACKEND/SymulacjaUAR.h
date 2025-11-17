@@ -18,8 +18,7 @@ public:
         m_sterowanie(0.0),
         m_wartoscZadana(0.0),
         m_wartoscRegulowana(0.0)
-    {
-    }
+    {}
     SymulacjaUAR(Model_ARX model, Regulator_PID regulator)
         : m_model(std::move(model)),
         m_regulator(std::move(regulator)),
@@ -28,44 +27,15 @@ public:
         m_sterowanie(0.0),
         m_wartoscZadana(0.0),
         m_wartoscRegulowana(0.0)
-    {
-    }
-
-    double symuluj(double pobudzenie)
-    {
-        // Wyznacz uchyb na podstawie poprzedniej wartoœci regulowanej
-        m_uchyb = pobudzenie - m_poprzedniaWartoscRegulowana;
-
-        // Oblicz nowe sterowanie
-        m_sterowanie = m_regulator.symuluj(m_uchyb);
-
-        // Symuluj obiekt z tym sterowaniem
-        m_wartoscRegulowana = m_model.symuluj(m_sterowanie);
-
-        // Przesuñ: bie¿¹ca wartoœæ regulowana staje siê "poprzedni¹" dla nastêpnego kroku
-        m_poprzedniaWartoscRegulowana = m_wartoscRegulowana;
-
-        return m_wartoscRegulowana;
-    }
+    {}
+    //dla testu
+    double symuluj(double pobudzenie);
 
     // Mo¿e pozostaæ: wykonajKrok — obs³uguje sprzê¿enie z generatorem wartoœci zadanej
-    void wykonajKrok()
-    {
-        m_wartoscZadana = m_generator.generujWartosc();
-        m_wartoscRegulowana = m_model.symuluj(m_sterowanie);
-        m_uchyb = m_wartoscZadana - m_wartoscRegulowana;
-        m_sterowanie = m_regulator.symuluj(m_uchyb);
-    }
+    void wykonajKrok();
 
     // Resetowanie
-    void reset() {
-        m_regulator.resetPamieci();
-        m_generator.reset();
-        m_uchyb = 0.0;
-        m_sterowanie = 0.0;
-        m_wartoscZadana = 0.0;
-        m_wartoscRegulowana = 0.0;
-    }
+    void reset();
 
     // Dostêp do komponentów (do konfiguracji)
     Model_ARX& model() { return m_model; }
