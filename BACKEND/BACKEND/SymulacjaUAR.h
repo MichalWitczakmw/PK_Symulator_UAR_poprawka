@@ -11,11 +11,11 @@ class ZapisOdczytUAR;
 class SymulacjaUAR
 {
 public:
-    SymulacjaUAR(Model_ARX model, Regulator_PID regulator, Generator generator, ZapisOdczytUAR* zapisOdczyt = nullptr)
+    SymulacjaUAR(Model_ARX model, Regulator_PID regulator, Generator generator, ZapisOdczytUAR* zapisOdczyt)
         : m_model(std::move(model)),
         m_regulator(std::move(regulator)),
         m_generator(std::move(generator)),
-        m_zapisOdczyt(zapisOdczyt),
+        m_zapisOdczyt( zapisOdczyt ),
         m_uchyb(0.0),
         m_sterowanie(0.0),
         m_wartoscZadana(0.0),
@@ -63,7 +63,7 @@ private:
     Model_ARX m_model;
     Regulator_PID m_regulator;
     Generator m_generator;
-    ZapisOdczytUAR* m_zapisOdczyt;
+    unique_ptr<ZapisOdczytUAR> m_zapisOdczyt;
 
     double m_uchyb;
     double m_sterowanie;
