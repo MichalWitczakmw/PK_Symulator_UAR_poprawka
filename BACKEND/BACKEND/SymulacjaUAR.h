@@ -3,19 +3,14 @@
 #include "Model_ARX.h"
 #include "Regulator_PID.h"
 #include "Generator.h"
-#include "ZapisOdczytUAR.h"
-#include <nlohmann/json.hpp>
-
-class ZapisOdczytUAR;
 
 class SymulacjaUAR
 {
 public:
-    SymulacjaUAR(Model_ARX model, Regulator_PID regulator, Generator generator, ZapisOdczytUAR* zapisOdczyt)
+    SymulacjaUAR(Model_ARX model, Regulator_PID regulator, Generator generator)
         : m_model(std::move(model)),
         m_regulator(std::move(regulator)),
         m_generator(std::move(generator)),
-        m_zapisOdczyt( zapisOdczyt ),
         m_uchyb(0.0),
         m_sterowanie(0.0),
         m_wartoscZadana(0.0),
@@ -43,10 +38,17 @@ public:
     // Resetowanie
     void reset();
 
-    // Dostêp do komponentów (do konfiguracji)
-    Model_ARX model() const { return m_model; }
-    Regulator_PID regulator() const { return m_regulator; }
-    Generator generator() const { return m_generator; }
+    // dostêp tylko do odczytu (dla kodu, który nie powinien zmieniaæ modelu)
+    const Model_ARX& getModel() const { return m_model; }
+    const Regulator_PID& getRegulator() const { return m_regulator; }
+    const Generator& getGenerator() const { return m_generator; }
+
+    // dostêp do modyfikacji (dla warstwy us³ug)
+    Model_ARX& getModelRef() { return m_model; }
+    Regulator_PID& getRegulatorRef() { return m_regulator; }
+    Generator& getGeneratorRef() { return m_generator; }
+
+
 
     // Dostêp do wartoœci (opcjonalnie)
     double getWartoscZadana() const { return m_wartoscZadana; }
@@ -63,7 +65,6 @@ private:
     Model_ARX m_model;
     Regulator_PID m_regulator;
     Generator m_generator;
-    unique_ptr<ZapisOdczytUAR> m_zapisOdczyt;
 
     double m_uchyb;
     double m_sterowanie;

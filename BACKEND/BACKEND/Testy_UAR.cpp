@@ -10,7 +10,7 @@
 #include "SymulacjaUAR.h"
 #include "ZapisOdczytUAR.h"
 
-#define DEBUG  // ustaw na MAIN aby skompilować program docelowy / ustaw na DEBUG aby skompilować program testujacy 
+#define MAIN // ustaw na MAIN aby skompilować program docelowy / ustaw na DEBUG aby skompilować program testujacy
 
 #ifdef DEBUG
 
@@ -1253,11 +1253,11 @@ int main()
 
 #ifdef MAIN
 
-
+/*
 int main()
 {
 	//Twój program
 }
-
+*/
 #endif
 

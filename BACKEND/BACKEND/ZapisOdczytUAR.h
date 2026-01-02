@@ -2,10 +2,10 @@
 
 #include <string>
 #include <fstream>
-#include <nlohmann/json.hpp>
+//#include <nlohmann/json.hpp>
 #include "SymulacjaUAR.h"
 
-using json = nlohmann::json;
+//using json = nlohmann::json;
 
 class SymulacjaUAR;
 

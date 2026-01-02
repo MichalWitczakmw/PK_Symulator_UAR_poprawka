@@ -1,12 +1,12 @@
 #include "ZapisOdczytUAR.h"
 #include "SymulacjaUAR.h"
-#include <nlohmann/json.hpp>
+//#include <nlohmann/json.hpp>
 
-using json = nlohmann::json;
+//using json = nlohmann::json;
 
 bool ZapisOdczytUAR::zapiszDoPliku(const string& sciezka, const SymulacjaUAR& symulacja)  const
 {
-	json j;
+    /*json j;
 
 	//SymulacjaUAR
 	j["symulacja"]["uchyb"] = symulacja.getUchyb();
@@ -46,13 +46,13 @@ bool ZapisOdczytUAR::zapiszDoPliku(const string& sciezka, const SymulacjaUAR& sy
 	if (!plik.is_open())
 		return false;
 	plik << j.dump(4);
-	plik.close();
-	return true;
+    plik.close();*/
+    return true;
 }
 
 bool ZapisOdczytUAR::odczytajZPliku(const string& sciezka, SymulacjaUAR& symulacja) const
 {
-    ifstream plik(sciezka);
+   /* ifstream plik(sciezka);
     if (!plik.is_open())
         return false;
     json j;
@@ -97,6 +97,6 @@ bool ZapisOdczytUAR::odczytajZPliku(const string& sciezka, SymulacjaUAR& symulac
     symulacja.generator().setOkres(j["generator"]["okres"].get<double>());
     symulacja.generator().setWypelnienie(j["generator"]["wypelnienie"].get<double>());
     symulacja.generator().setSkladowaStala(j["generator"]["skladowaStala"].get<double>());
-
+*/
     return true;
 }

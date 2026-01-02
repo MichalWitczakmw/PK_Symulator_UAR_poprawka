@@ -5,7 +5,7 @@ double Generator::generujWartosc()
 {
     double wartosc = 0.0;
 
-    if (m_typ == TypSygna³u::Sinus) 
+    if (m_typ == TypSygnalu::Sinus)
     {
         double t = (2.0 * M_PI * m_indeks) / m_okres;
         wartosc = m_amplituda * sin(t) + m_skladowaStala;
