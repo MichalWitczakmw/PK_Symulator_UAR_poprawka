@@ -159,7 +159,7 @@ bool SymulatorUAR::ustawGeneratorProstokąt(double amplituda, double okresTRZ,
     }
 
     double okresDyskretny = okresTRZ * m_współczynnikTRZdoT;
-    m_symulacja.getGeneratorRef().setTyp(TypSygnalu::Sinus);
+    m_symulacja.getGeneratorRef().setTyp(TypSygnalu::Prostokat);
     m_symulacja.getGeneratorRef().setAmplituda(amplituda);
     m_symulacja.getGeneratorRef().setOkres(okresDyskretny);
     m_symulacja.getGeneratorRef().setWypelnienie(wypełnienie);
