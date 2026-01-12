@@ -16,7 +16,8 @@ SymulatorUAR::SymulatorUAR(QObject* parent)
     // Domyślna konfiguracja wzorcowa do testów
     ustawWspolczynnikiARX({-0.4}, {0.6}, 1, 0.0);
     ustawNastawyPID(1.0, 0.0, 0.0);
-    ustawGeneratorProstokąt(1.0, 50.0, 0.5, 0.0);  // TRZ = 50s przy TT=200ms
+    //ustawGeneratorProstokąt(1.0, 50.0, 0.5, 0.0);  // TRZ = 50s przy TT=200ms
+    ustawGeneratorSinus(1.0,0.5,1);
 
     m_czasStartu = std::chrono::steady_clock::now();
 }
@@ -231,6 +232,7 @@ void SymulatorUAR::wykonajKrokSymulacji()
         );
 
     emit stanSymulacjiZmieniony();
+    emit dataUpdated(czas, m_symulacja.getWartoscRegulowana());
 }
 
 // === POMOCNICZE ===

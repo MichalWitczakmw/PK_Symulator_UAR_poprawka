@@ -69,6 +69,7 @@ signals:
     void symulacjaZatrzymana();
     void symulacjaZresetowana();
     void stanSymulacjiZmieniony();  // GUI może odświeżyć wykresy
+     void dataUpdated(double czas, double y);  // Emit po każdym kroku
 
 private slots:
     void wykonajKrokSymulacji();
