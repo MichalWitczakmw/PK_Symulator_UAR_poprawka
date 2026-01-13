@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "arxdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,26 +22,50 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
     void on_StartPB_clicked();
     void on_StopPB_clicked();
     void on_ResetPB_clicked();
-    void updateChart(double czas, double dummy);   // ZOSTAWIAMY TYLKO TO
+    void updateChart(double czas, double dummy);
+
+    void on_ARXpushButton_clicked();   // klik ARX – otwarcie dialogu
 
 private:
     Ui::MainWindow *ui;
     SymulatorUAR *m_symulator;
+
+    // stare jednoseryjne rzeczy – możesz zostawić, ale NIE będą używane
     QChartView *chartView;
     QLineSeries *series;
     QChart *chart;
 
-    QChartView *chartViewY, *chartViewW, *chartViewE, *chartViewU;
-    QLineSeries *seriesY, *seriesW, *seriesE, *seriesU;
-    QChart *chartY, *chartW, *chartE, *chartU;
-    QLineSeries *seriesP, *seriesI, *seriesD, *seriesY2;
+    // 4 wykresy: PID, w+y, e, u
+    QChartView *chartViewY;
+    QChartView *chartViewW;
+    QChartView *chartViewE;
+    QChartView *chartViewU;
+
+    // serie
+    QLineSeries *seriesP;    // P
+    QLineSeries *seriesI;    // I
+    QLineSeries *seriesD;    // D
+    QLineSeries *seriesY2;   // y (regulowana)
+
+    QLineSeries *seriesW;    // w (zadana)
+    QLineSeries *seriesE;    // e (uchyb)
+    QLineSeries *seriesU;    // u (sterowanie)
+
+    // obiekty wykresów
+    QChart *chartY;
+    QChart *chartW;
+    QChart *chartE;
+    QChart *chartU;
+
+    // dialog ARX
+    ArxDialog *m_arxDialog;
 };
 
 #endif // MAINWINDOW_H

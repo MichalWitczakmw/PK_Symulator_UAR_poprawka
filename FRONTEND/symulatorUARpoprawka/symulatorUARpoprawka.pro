@@ -17,6 +17,7 @@ SOURCES += \
     ../../BACKEND/BACKEND/SymulatorUAR.cpp \
     ../../BACKEND/BACKEND/Testy_UAR.cpp \
     ../../BACKEND/BACKEND/ZapisOdczytUAR.cpp \
+    arxdialog.cpp \
     main.cpp \
     mainwindow.cpp
 
@@ -27,9 +28,11 @@ HEADERS += \
     ../../BACKEND/BACKEND/SymulacjaUAR.h \
     ../../BACKEND/BACKEND/SymulatorUAR.h \
     ../../BACKEND/BACKEND/ZapisOdczytUAR.h \
+    arxdialog.h \
     mainwindow.h
 
 FORMS += \
+    arxdialog.ui \
     mainwindow.ui
 
 # Default rules for deployment.
