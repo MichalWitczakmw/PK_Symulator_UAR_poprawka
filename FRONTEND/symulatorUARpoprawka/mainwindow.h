@@ -33,6 +33,8 @@ private slots:
 
     void on_ARXpushButton_clicked();   // klik ARX – otwarcie dialogu
 
+    bool eventFilter(QObject *obj, QEvent *event);
+
 private:
     Ui::MainWindow *ui;
     SymulatorUAR *m_symulator;

@@ -1,23 +1,25 @@
 #include "SymulatorUAR.h"
 #include "Generator.h"
 #include <QDebug>
+#include <QStringList>
+
 
 SymulatorUAR::SymulatorUAR(QObject* parent)
     : QObject(parent)
-    , m_timer(new QTimer(this)),m_symulacja(
-          Model_ARX({-0.4}, {0.6}, 1, 0.0),
+    , m_symulacja(
+          Model_ARX({1, -0.4, -0.2}, {0.6,0.2,0.0}, 1, 0.0),
           Regulator_PID(1.0, 0.0, 0.0),
           Generator()
-          )
+          ),m_timer(new QTimer(this))
 {
     // Połączenie timera z slotem symulacji
     connect(m_timer, &QTimer::timeout, this, &SymulatorUAR::wykonajKrokSymulacji);
 
     // Domyślna konfiguracja wzorcowa do testów
-    ustawWspolczynnikiARX({-0.4}, {0.6}, 1, 0.0);
+    ustawWspolczynnikiARX({1, -0.4, -0.2}, {0.6,0.2,0.0}, 1, 0.0);
     ustawNastawyPID(1.0, 0.0, 0.0);
     //ustawGeneratorProstokąt(1.0, 50.0, 0.5, 0.0);  // TRZ = 50s przy TT=200ms
-    ustawGeneratorSinus(1.0,0.5,1);
+    ustawGeneratorSinus(1.0,10,0);
 
     m_czasStartu = std::chrono::steady_clock::now();
 }
@@ -170,7 +172,16 @@ bool SymulatorUAR::ustawGeneratorProstokąt(double amplituda, double okresTRZ,
     return true;
 }
 
-void SymulatorUAR::ustawInterwałSymulacji(int interwałMs)
+bool SymulatorUAR::ustawWzmocnienieGeneratora(double wzmocnienie)
+{
+    // możesz dodać prostą walidację, np. wzmocnienie >= 0
+    m_symulacja.getGeneratorRef().setAmplituda(wzmocnienie);
+    qDebug() << "Generator: nowe wzmocnienie (amplituda)=" << wzmocnienie;
+    return true;
+}
+
+
+void SymulatorUAR::ustawInterwalSymulacji(int interwałMs)
 {
     if (m_czyDziała) {
         qDebug() << "Zmiana interwału podczas symulacji!";
@@ -179,6 +190,19 @@ void SymulatorUAR::ustawInterwałSymulacji(int interwałMs)
         m_współczynnikTRZdoT = (1000.0 / m_interwałMs);
     }
 }
+void SymulatorUAR::ustawOknoObserwacji(double sekundy)
+{
+    // na razie możesz np. tylko przeliczyć na maks. ilość punktów historii
+    // przy interwale m_interwałMs (ms):
+    // czas okna [s] -> liczba próbek = sekundy * (1000 / m_interwałMs)
+
+    double iloscProbek = sekundy * (1000.0 / m_interwałMs);
+    m_maxHistoriaPunktow = static_cast<int>(iloscProbek);
+
+    if (m_maxHistoriaPunktow < 1)
+        m_maxHistoriaPunktow = 1;
+}
+
 
 // === DOSTĘP DO DANYCH ===
 double SymulatorUAR::getWartoscZadana() const { return m_symulacja.getWartoscZadana(); }
@@ -290,3 +314,102 @@ double SymulatorUAR::obliczSkladowaD() const
     const auto& reg = m_symulacja.getRegulator();
     return reg.getTd() * reg.getUchybPoprzedni();
 }
+
+static std::vector<double> rozdzielWspolczynnik(const QString &text, bool &ok)
+{
+    ok = true;
+    std::vector<double> result;
+
+    // rozdziel po przecinku
+    const QStringList parts = text.split(',', Qt::SkipEmptyParts);
+    if (parts.isEmpty()) {
+        ok = false;
+        return result;
+    }
+
+    for (const QString &raw : parts) {
+        QString s = raw.trimmed();      // usuń spacje
+        if (s.isEmpty())
+            continue;
+
+        bool okNum = false;
+        double val = s.toDouble(&okNum);  // kropka lub przecinek lokalnie
+
+        if (!okNum) {
+            ok = false;
+            result.clear();
+            return result;
+        }
+        result.push_back(val);
+    }
+
+    if (result.empty())
+        ok = false;
+
+    return result;
+}
+
+SymulatorUAR::BladARX SymulatorUAR::konfigurujARX(const QString &tekstA,
+                                                  const QString &tekstB,
+                                                  int opoznienie,
+                                                  double szum,
+                                                  double minVal,
+                                                  double maxVal,
+                                                  bool uzywajOgraniczen)
+{
+    bool okA = false, okB = false;
+    std::vector<double> A = rozdzielWspolczynnik(tekstA, okA);
+    std::vector<double> B = rozdzielWspolczynnik(tekstB, okB);
+
+    if (!okA)
+        return BladARX::ZlyFormatA;
+    if (!okB)
+        return BladARX::ZlyFormatB;
+
+    if (A.size() < 3)
+        return BladARX::ZaMaloA;
+    if (B.size() < 3)
+        return BladARX::ZaMaloB;
+
+    if (opoznienie < 1)
+        opoznienie = 1;
+
+    auto &model = m_symulacja.getModelRef();
+    model.setA(A);
+    model.setB(B);
+    model.setopoznienieTransport(opoznienie);
+    model.setOdchylenieZaklocen(szum);
+    model.setOgrSterowania(minVal, maxVal, uzywajOgraniczen);
+    model.setOgrRegulowania(minVal, maxVal, uzywajOgraniczen);
+
+    return BladARX::BrakBledu;
+}
+
+static QString wektorNaTekst(const std::vector<double> &v)
+{
+    QStringList parts;
+    for (double x : v)
+        parts << QString::number(x, 'g', 6);  // np. "-0.4, 0.6"
+    return parts.join(", ");
+}
+
+SymulatorUAR::KonfiguracjaARX SymulatorUAR::getKonfiguracjaARX() const
+{
+    KonfiguracjaARX cfg;
+    const auto &model = m_symulacja.getModel();
+
+    cfg.tekstA = wektorNaTekst(model.getA());
+    cfg.tekstB = wektorNaTekst(model.getB());
+    cfg.opoznienie = model.getOpoznienieTransport();
+    cfg.szum = model.getOdchylenieZaklocen();
+    cfg.minVal = model.getMinY();
+    cfg.maxVal = model.getMaxY();
+    cfg.uzywajOgraniczen = model.getJestOgrSterowaniaAktywne()
+                           && model.getJestgrRegulowaniaAktywne();
+
+    return cfg;
+}
+
+
+
+

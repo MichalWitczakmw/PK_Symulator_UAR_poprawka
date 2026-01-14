@@ -8,6 +8,8 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPainter>
+#include <QMessageBox>
+#include <QKeyEvent>
 
 #include "../../BACKEND/BACKEND/SymulatorUAR.h"
 
@@ -24,6 +26,28 @@ MainWindow::MainWindow(QWidget *parent)
     , m_arxDialog(nullptr)
 {
     ui->setupUi(this);
+
+    ui->interwalSpinBox->installEventFilter(this);
+    ui->czasTrwaniadoubleSpinBox->installEventFilter(this);
+
+    ui->ogrDolneSpinBox->installEventFilter(this);
+    ui->ogrGornedoubleSpinBox->installEventFilter(this);
+    ui->wzmacniaczSpinBox->installEventFilter(this);
+    ui->typComboBox->installEventFilter(this);
+
+    ui->TiSpinBox->installEventFilter(this);
+    ui->TdSpinBox->installEventFilter(this);
+    ui->KpSpinBox->installEventFilter(this);
+    connect(ui->CzyCalkacheckBox, &QCheckBox::toggled,
+            this, [this](bool zaznaczony){
+                // zaznaczony -> np. Zew, odznaczony -> Wew
+                m_symulator->ustawTrybCalkowania(
+                    zaznaczony
+                        ? Regulator_PID::LiczCalk::Zew
+                        : Regulator_PID::LiczCalk::Wew);
+            });
+
+
 
     // Możesz ustawić tylko startowy rozmiar, ale BEZ blokowania skalowania
     this->resize(1200, 650);
@@ -44,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent)
     // CH1: PID (P czerwony, I żółty, D niebieski)
     // ------------------------------------------------------------------
     chartY = new QChart();
-    chartY->setTitle("P (czerw), I (żół), D (nieb)");
+    //chartY->setTitle("P (czerw), I (żół), D (nieb)");
 
     seriesP = new QLineSeries();
     seriesP->setName("P");
@@ -81,17 +105,17 @@ MainWindow::MainWindow(QWidget *parent)
     // CH2: w (żółty, dashed) + y (zielony)
     // ------------------------------------------------------------------
     chartW = new QChart();
-    chartW->setTitle("w (zad żół dashed), y (reg ziel)");
+    //chartW->setTitle("w (zad żół dashed), y (reg ziel)");
 
     seriesW = new QLineSeries();
-    seriesW->setName("w");
-    QPen penW(QColor(255, 255, 0), 2);
+    seriesW->setName("zadana");
+    QPen penW(QColor(178, 178, 0), 2);
     penW.setStyle(Qt::DashLine);
     seriesW->setPen(penW);
     chartW->addSeries(seriesW);
 
     seriesY2 = new QLineSeries();
-    seriesY2->setName("y");
+    seriesY2->setName("regulowana");
     QPen penY2(QColor(0, 255, 0), 2);
     seriesY2->setPen(penY2);
     chartW->addSeries(seriesY2);
@@ -113,10 +137,10 @@ MainWindow::MainWindow(QWidget *parent)
     // CH3: e (uchyb)
     // ------------------------------------------------------------------
     chartE = new QChart();
-    chartE->setTitle("uchyb");
+    //chartE->setTitle("uchyb");
 
     seriesE = new QLineSeries();
-    seriesE->setName("e");
+    seriesE->setName("uchyb");
     QPen penE(QColor(0, 0, 255), 2);
     seriesE->setPen(penE);
     chartE->addSeries(seriesE);
@@ -138,10 +162,10 @@ MainWindow::MainWindow(QWidget *parent)
     // CH4: u (sterowanie)
     // ------------------------------------------------------------------
     chartU = new QChart();
-    chartU->setTitle("sterowanie");
+    //chartU->setTitle("sterowanie");
 
     seriesU = new QLineSeries();
-    seriesU->setName("u");
+    seriesU->setName("sterowanie");
     QPen redPen(QColor(255, 0, 0), 2);
     seriesU->setPen(redPen);
     chartU->addSeries(seriesU);
@@ -192,26 +216,83 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress) {
+        auto *kev = static_cast<QKeyEvent *>(event);
+        if (kev->key() == Qt::Key_Return || kev->key() == Qt::Key_Enter) {
+
+            // ===== Symulacja: interwał i czas trwania =====
+            if (obj == ui->interwalSpinBox) {
+                int interwal = ui->interwalSpinBox->value();
+                m_symulator->ustawInterwalSymulacji(interwal);
+            } else if (obj == ui->czasTrwaniadoubleSpinBox) {
+                double czas = ui->czasTrwaniadoubleSpinBox->value();
+                m_symulator->ustawOknoObserwacji(czas);
+            }
+
+            // ===== Gegulator – ograniczenia i wzmocnienie generatora =====
+            else if (obj == ui->ogrDolneSpinBox || obj == ui->ogrGornedoubleSpinBox) {
+                double minU = ui->ogrDolneSpinBox->value();
+                double maxU = ui->ogrGornedoubleSpinBox->value();
+                m_symulator->ustawOgraniczeniaRegulatora(minU, maxU);
+            } else if (obj == ui->wzmacniaczSpinBox) {
+                double wzmacnianie = ui->wzmacniaczSpinBox->value();
+                m_symulator->ustawWzmocnienieGeneratora(wzmacnianie);
+            }
+            // ===== Typ wykresu / generatora (ComboBox) =====
+            else if (obj == ui->typComboBox) {
+                int idx = ui->typComboBox->currentIndex();
+
+                // przykładowo: stałe parametry dopóki nie zrobisz osobnych kontrolek
+                double A  = ui->wzmacniaczSpinBox->value();  // amplituda z "Wzmocnienie"
+                double TRZ = ui->czasTrwaniadoubleSpinBox->value(); // okres w sekundach
+                double S  = 0.0;      // składowa stała, na razie 0
+                double D  = 0.5;      // wypełnienie, np. 50%
+
+                if (idx == 0) {
+                    // Sinusoidalny
+                    m_symulator->ustawGeneratorSinus(A, TRZ, S);
+                } else {
+                    // Prostokątny
+                    m_symulator->ustawGeneratorProstokąt(A, TRZ, D, S);
+                }
+            }
+
+            // ===== PID: Ti, Td, Kp =====
+            else if (obj == ui->TiSpinBox || obj == ui->TdSpinBox || obj == ui->KpSpinBox) {
+
+                double Ti = ui->TiSpinBox->value();
+                double Td = ui->TdSpinBox->value();
+                double Kp = ui->KpSpinBox->value();
+
+                m_symulator->ustawNastawyPID(Kp, Ti, Td);
+            }
+
+
+            // nie blokujemy dalszej obsługi – spinbox nadal zakończy edycję
+            return false;
+        }
+    }
+    // dla innych zdarzeń/obiektów – domyślna obsługa
+    return QMainWindow::eventFilter(obj, event);
+}
+
+
 // ===================================================================
 // START / STOP / RESET
 // ===================================================================
 
 void MainWindow::on_StartPB_clicked()
 {
-    m_symulator->uruchom(200);
+    int interwal = ui->interwalSpinBox->value();
+    m_symulator->uruchom(interwal);
 
     ui->StartPB->setEnabled(false);
     ui->StopPB->setEnabled(true);
     ui->ResetPB->setEnabled(true);
-
-    if (seriesP)  seriesP->clear();
-    if (seriesI)  seriesI->clear();
-    if (seriesD)  seriesD->clear();
-    if (seriesW)  seriesW->clear();
-    if (seriesY2) seriesY2->clear();
-    if (seriesE)  seriesE->clear();
-    if (seriesU)  seriesU->clear();
 }
+
 
 void MainWindow::on_StopPB_clicked()
 {
@@ -239,9 +320,53 @@ void MainWindow::on_ResetPB_clicked()
     if (seriesU)  seriesU->clear();
 }
 
+
 // ===================================================================
 // Aktualizacja 4 wykresów: P/I/D, w+y, e, u
 // ===================================================================
+
+static void autoskalujOśYzOkna(QChart *chart,
+                               const QList<QLineSeries*> &serie,
+                               double left, double right)
+{
+    if (!chart)
+        return;
+
+    bool pierwszy = true;
+    double minY = 0.0, maxY = 0.0;
+
+    for (QLineSeries *s : serie) {
+        if (!s)
+            continue;
+
+        const auto &pts = s->pointsVector();
+        for (const QPointF &p : pts) {
+            if (p.x() < left || p.x() > right)
+                continue;   // poza widocznym oknem
+
+            if (pierwszy) {
+                minY = maxY = p.y();
+                pierwszy = false;
+            } else {
+                if (p.y() < minY) minY = p.y();
+                if (p.y() > maxY) maxY = p.y();
+            }
+        }
+    }
+
+    if (pierwszy)
+        return; // brak punktów w oknie
+
+    // margines ±0.5
+    double low  = minY - 0.5;
+    double high = maxY + 0.5;
+
+    if (auto *axisY = qobject_cast<QValueAxis*>(chart->axisY()))
+        axisY->setRange(low, high);
+}
+
+
+
 
 void MainWindow::updateChart(double czas, double /*dummy*/)
 {
@@ -276,15 +401,74 @@ void MainWindow::updateChart(double czas, double /*dummy*/)
     if (chartW) chartW->axisX()->setRange(left, czas);
     if (chartE) chartE->axisX()->setRange(left, czas);
     if (chartU) chartU->axisX()->setRange(left, czas);
+
+    autoskalujOśYzOkna(chartY, { seriesP, seriesI, seriesD }, left, czas);
+    autoskalujOśYzOkna(chartW, { seriesW, seriesY2 },        left, czas);
+    autoskalujOśYzOkna(chartE, { seriesE },                  left, czas);
+    autoskalujOśYzOkna(chartU, { seriesU },                  left, czas);
+
+
 }
 
 void MainWindow::on_ARXpushButton_clicked()
 {
     if (!m_arxDialog) {
         m_arxDialog = new ArxDialog(this);
-        m_arxDialog->setModal(true);   // jeśli ma blokować główne okno
+        m_arxDialog->setModal(true);
     }
-    m_arxDialog->show();
-    m_arxDialog->raise();
-    m_arxDialog->activateWindow();
+
+    // pobierz aktualną konfigurację ARX jako teksty
+    auto cfg = m_symulator->getKonfiguracjaARX();
+
+    // ustaw kontrolek okienka
+    m_arxDialog->ustawZKonfiguracji(cfg.tekstA, cfg.tekstB,
+                                    cfg.opoznienie,
+                                    cfg.szum,
+                                    cfg.minVal,
+                                    cfg.maxVal,
+                                    cfg.uzywajOgraniczen);
+
+    if (m_arxDialog->exec() == QDialog::Accepted) {
+
+        QString strA      = m_arxDialog->coeffA();
+        QString strB      = m_arxDialog->coeffB();
+        int    delay      = m_arxDialog->delay();
+        double noise      = m_arxDialog->noise();
+        double minVal     = m_arxDialog->minVal();
+        double maxVal     = m_arxDialog->maxVal();
+        bool   useLimits  = m_arxDialog->useLimits();
+
+        auto blad = m_symulator->konfigurujARX(strA, strB,
+                                               delay, noise,
+                                               minVal, maxVal,
+                                               useLimits);
+        if (blad != SymulatorUAR::BladARX::BrakBledu) {
+            QString msg;
+            switch (blad) {
+            case SymulatorUAR::BladARX::ZlyFormatA:
+                msg = tr("Niepoprawny format współczynników A.\n"
+                         "Użyj formatu: -0.4, -0.4, 0.6");
+                break;
+            case SymulatorUAR::BladARX::ZlyFormatB:
+                msg = tr("Niepoprawny format współczynników B.\n"
+                         "Użyj formatu: -0.4, -0.4, 0.6");
+                break;
+            case SymulatorUAR::BladARX::ZaMaloA:
+                msg = tr("Wektor A musi mieć co najmniej 3 współczynniki.");
+                break;
+            case SymulatorUAR::BladARX::ZaMaloB:
+                msg = tr("Wektor B musi mieć co najmniej 3 współczynniki.");
+                break;
+            default:
+                break;
+            }
+            if (!msg.isEmpty())
+                m_arxDialog->pokazBlad(msg);
+
+            // opcjonalnie ponownie otworzyć dialog
+            on_ARXpushButton_clicked();
+        }
+    }
 }
+
+

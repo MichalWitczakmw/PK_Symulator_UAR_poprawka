@@ -36,9 +36,10 @@ public:
     // === KONFIGURACJA GENERATORA ===
     bool ustawGeneratorSinus(double amplituda, double okresTRZ, double składowaStała);
     bool ustawGeneratorProstokąt(double amplituda, double okresTRZ, double wypełnienie, double składowaStała);
+    bool ustawWzmocnienieGeneratora(double wzmocnienie);
 
     // === KONFIGURACJA SYMULACJI ===
-    void ustawInterwałSymulacji(int interwałMs);
+    void ustawInterwalSymulacji(int interwałMs);
     void ustawOknoObserwacji(double sekundy);
 
     // === DOSTĘP DO DANYCH DLA GUI ===
@@ -63,6 +64,36 @@ public:
 
     // Stan symulacji
     bool isRunning() const { return m_czyDziała; }
+
+    const SymulacjaUAR& getSymulacja() const { return m_symulacja; }
+
+    enum class BladARX {
+        BrakBledu,
+        ZlyFormatA,
+        ZlyFormatB,
+        ZaMaloA,
+        ZaMaloB
+    };
+    BladARX konfigurujARX(const QString &aText,
+                       const QString &bText,
+                       int opoznienie,
+                       double szum,
+                       double minVal,
+                       double maxVal,
+                       bool uzywajOgraniczen);
+
+    struct KonfiguracjaARX {
+        QString tekstA;
+        QString tekstB;
+        int opoznienie;
+        double szum;
+        double minVal;
+        double maxVal;
+        bool uzywajOgraniczen;
+    };
+
+    KonfiguracjaARX getKonfiguracjaARX() const;
+
 
 signals:
     void symulacjaUruchomiona();

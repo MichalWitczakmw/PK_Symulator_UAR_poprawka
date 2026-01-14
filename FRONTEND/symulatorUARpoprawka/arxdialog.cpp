@@ -48,7 +48,7 @@ ArxDialog::ArxDialog(QWidget *parent)
     ui->spinBoxOpoznienie->setRange(0, 100);
     ui->spinBoxOpoznienie->setValue(2);
 
-    ui->doubleSpinBoxSzum->setDecimals(3);
+    ui->doubleSpinBoxSzum->setDecimals(2);
     ui->doubleSpinBoxSzum->setSingleStep(0.01);
     ui->doubleSpinBoxSzum->setRange(0.0, 1.0);
     ui->doubleSpinBoxSzum->setValue(0.01);
@@ -156,7 +156,38 @@ void ArxDialog::on_okButton_clicked()
     accept();   // zamyka dialog (QDialog::Accepted)
 }
 
+void ArxDialog::pokazBlad(const QString &tekst)
+{
+    QMessageBox::warning(this, tr("Błąd"), tekst);
+}
+
+
 void ArxDialog::on_cancelButton_clicked()
 {
     reject();   // zamyka dialog (QDialog::Rejected)
+}
+
+static QString wektorNaTekst(const QVector<double> &v)
+{
+    QStringList parts;
+    for (double x : v)
+        parts << QString::number(x, 'g', 6);
+    return parts.join(", ");
+}
+
+void ArxDialog::ustawZKonfiguracji(const QString &tekstA,
+                                   const QString &tekstB,
+                                   int opoznienie,
+                                   double szum,
+                                   double minVal,
+                                   double maxVal,
+                                   bool uzywajOgraniczen)
+{
+    ui->lineEditA->setText(tekstA);
+    ui->lineEditB->setText(tekstB);
+    ui->spinBoxOpoznienie->setValue(opoznienie);
+    ui->doubleSpinBoxSzum->setValue(szum);
+    ui->doubleSpinBoxMin->setValue(minVal);
+    ui->doubleSpinBoxMax->setValue(maxVal);
+    ui->checkBoxOgraniczenie->setChecked(uzywajOgraniczen);
 }

@@ -24,6 +24,15 @@ public:
     double minVal() const;
     double maxVal() const;
     bool useLimits() const;
+    void pokazBlad(const QString &tekst);
+
+    void ustawZKonfiguracji(const QString &tekstA,
+                            const QString &tekstB,
+                            int opoznienie,
+                            double szum,
+                            double minVal,
+                            double maxVal,
+                            bool uzywajOgraniczen);
 
 private slots:
     void on_okButton_clicked();
