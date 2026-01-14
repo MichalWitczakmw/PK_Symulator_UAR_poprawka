@@ -103,6 +103,15 @@ public:
     double getCzasTrwaniaS() const { return m_czasTrwaniaS; }
     void ustawCzasTrwania(double sekundy) { m_czasTrwaniaS = sekundy; }
 
+    void ustawGenerator(double amplituda,
+                        double okresTRZ,
+                        double wypelnienieProc,
+                        double skladowaStala);
+    double getAmplituda() const;
+    double getOkresTRZ() const;
+    double getWypelnienieProc() const;
+    double getSkladowaStala() const;
+
 signals:
     void symulacjaUruchomiona();
     void symulacjaZatrzymana();
@@ -125,6 +134,10 @@ private:
     int m_interwalMs = 200;              // interwal w ms
     bool m_czyDziala = false;
     double m_czasTrwaniaS = 50.0;
+
+    double m_okresTRZ = 10.0;
+    double m_wypelnienie = 0.5;
+    double m_skladowaStala = 0.0;
 
     // === KONWERSJA CZASU RZECZYWISTEGO ↔ DYSKRETNEGO ===
     double m_wspolczynnikTRZdoT = 5.0;   // TRZ[sek]*1000 / TT[ms]

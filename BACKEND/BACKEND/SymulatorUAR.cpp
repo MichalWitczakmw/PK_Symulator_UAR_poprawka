@@ -445,6 +445,30 @@ void SymulatorUAR::odczytajKonfiguracje()
 
 }
 
+void SymulatorUAR::ustawGenerator(double amplituda,
+                                  double okresTRZ,
+                                  double wypelnienieProc,
+                                  double skladowaStala)
+{
+    m_okresTRZ      = okresTRZ;
+    m_wypelnienie   = wypelnienieProc / 100.0; // GUI: % -> 0..1
+    m_skladowaStala = skladowaStala;
+
+    // liczba próbek na okres (T w Generatorze)
+    double T = (okresTRZ * 1000.0) / m_interwalMs;
+
+    auto &gen = m_symulacja.getGeneratorRef();
+    gen.setAmplituda(amplituda);
+    gen.setOkres(T);                    // okres dyskretny
+    gen.setWypelnienie(m_wypelnienie);  // 0..1
+    gen.setSkladowaStala(m_skladowaStala);
+}
+
+
+double SymulatorUAR::getAmplituda() const      { return m_symulacja.getGenerator().getAmplituda(); }
+double SymulatorUAR::getOkresTRZ() const       { return m_okresTRZ; }
+double SymulatorUAR::getWypelnienieProc() const { return m_wypelnienie * 100.0; }
+double SymulatorUAR::getSkladowaStala() const  { return m_skladowaStala; }
 
 
 

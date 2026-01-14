@@ -35,10 +35,16 @@ MainWindow::MainWindow(QWidget *parent)
     ui->ogrGornedoubleSpinBox->installEventFilter(this);
     ui->wzmacniaczSpinBox->installEventFilter(this);
     ui->typComboBox->installEventFilter(this);
+    ui->OkresdoubleSpinBox->installEventFilter(this);
+    ui->WypelnieniespinBox->installEventFilter(this);
+    ui->StalaSkladowadoubleSpinBox_3->installEventFilter(this);
+
 
     ui->TiSpinBox->installEventFilter(this);
     ui->TdSpinBox->installEventFilter(this);
     ui->KpSpinBox->installEventFilter(this);
+
+
     connect(ui->CzyCalkacheckBox, &QCheckBox::toggled,
             this, [this](bool zaznaczony){
                 // zaznaczony -> np. Zew, odznaczony -> Wew
@@ -224,45 +230,27 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         auto *kev = static_cast<QKeyEvent *>(event);
         if (kev->key() == Qt::Key_Return || kev->key() == Qt::Key_Enter) {
 
-            // ===== Symulacja: interwal i czas trwania =====
+            // ===== Symulacja: interwał i czas trwania =====
             if (obj == ui->interwalSpinBox) {
                 int interwal = ui->interwalSpinBox->value();
                 m_symulator.ustawInterwalSymulacji(interwal);
-            } else if (obj == ui->czasTrwaniadoubleSpinBox) {
+            }
+            else if (obj == ui->czasTrwaniadoubleSpinBox) {
                 double czas = ui->czasTrwaniadoubleSpinBox->value();
                 m_symulator.ustawOknoObserwacji(czas);
             }
 
-            // ===== Gegulator – ograniczenia i wzmocnienie generatora =====
+            // ===== Regulator – ograniczenia =====
             else if (obj == ui->ogrDolneSpinBox || obj == ui->ogrGornedoubleSpinBox) {
                 double minU = ui->ogrDolneSpinBox->value();
                 double maxU = ui->ogrGornedoubleSpinBox->value();
                 m_symulator.ustawOgraniczeniaRegulatora(minU, maxU);
-            } else if (obj == ui->wzmacniaczSpinBox) {
-                double wzmacnianie = ui->wzmacniaczSpinBox->value();
-                m_symulator.ustawWzmocnienieGeneratora(wzmacnianie);
-            }
-            // ===== Typ wykresu / generatora (ComboBox) =====
-            else if (obj == ui->typComboBox) {
-                int idx = ui->typComboBox->currentIndex();
-
-                // przykladowo: stale parametry dopoki nie zrobisz osobnych kontrolek
-                double A  = ui->wzmacniaczSpinBox->value();  // amplituda z "Wzmocnienie"
-                double TRZ = ui->czasTrwaniadoubleSpinBox->value(); // okres w sekundach
-                double S  = 0.0;      // skladowa stala, na razie 0
-                double D  = 0.5;      // wypelnienie, np. 50%
-
-                if (idx == 0) {
-                    // Sinusoidalny
-                    m_symulator.ustawGeneratorSinus(A, TRZ, S);
-                } else {
-                    // Prostokatny
-                    m_symulator.ustawGeneratorProstokat(A, TRZ, D, S);
-                }
             }
 
             // ===== PID: Ti, Td, Kp =====
-            else if (obj == ui->TiSpinBox || obj == ui->TdSpinBox || obj == ui->KpSpinBox) {
+            else if (obj == ui->TiSpinBox ||
+                     obj == ui->TdSpinBox ||
+                     obj == ui->KpSpinBox) {
 
                 double Ti = ui->TiSpinBox->value();
                 double Td = ui->TdSpinBox->value();
@@ -271,12 +259,37 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 m_symulator.ustawNastawyPID(Kp, Ti, Td);
             }
 
+            // ===== Generator: amplituda, okres, wypełnienie, składowa stała, typ =====
+            else if (obj == ui->wzmacniaczSpinBox ||
+                     obj == ui->OkresdoubleSpinBox ||
+                     obj == ui->WypelnieniespinBox ||
+                     obj == ui->StalaSkladowadoubleSpinBox_3 ||
+                     obj == ui->typComboBox)
+            {
+                double A   = ui->wzmacniaczSpinBox->value();          // amplituda
+                double TRZ = ui->OkresdoubleSpinBox->value();         // okres [s]
+                double p   = ui->WypelnieniespinBox->value();         // 0..100 %
+                double S   = ui->StalaSkladowadoubleSpinBox_3->value();
 
-            // nie blokujemy dalszej obslugi – spinbox nadal zakonczy edycje
+                // ustaw parametry generatora w warstwie usług
+                m_symulator.ustawGenerator(A, TRZ, p, S);
+
+                int idx = ui->typComboBox->currentIndex();
+                if (idx == 0) {
+                    // Sinusoidalny
+                    m_symulator.ustawGeneratorSinus(A, TRZ, S);
+                } else {
+                    // Prostokątny (wypełnienie 0..1)
+                    m_symulator.ustawGeneratorProstokat(A, TRZ, p / 100.0, S);
+                }
+            }
+
+            // nie blokujemy dalszej obsługi – spinbox/combobox normalnie kończy edycję
             return false;
         }
     }
-    // dla innych zdarzen/obiektow – domyslna obsluga
+
+    // dla innych zdarzeń/obiektów – domyślna obsługa
     return QMainWindow::eventFilter(obj, event);
 }
 
@@ -494,6 +507,8 @@ void MainWindow::odswiezKontrolkiPoWczytaniu()
     ui->KpSpinBox->setValue(reg.getKp());
     ui->TiSpinBox->setValue(reg.getTi());
     ui->TdSpinBox->setValue(reg.getTd());
+    ui->ogrGornedoubleSpinBox->setValue(reg.getOgrMax());
+    ui->ogrDolneSpinBox->setValue(reg.getOgrMin());
     ui->CzyCalkacheckBox->setChecked(
         reg.getLiczCalk() == Regulator_PID::LiczCalk::Wew);
 
