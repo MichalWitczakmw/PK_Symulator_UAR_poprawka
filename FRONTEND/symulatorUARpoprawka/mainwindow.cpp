@@ -69,8 +69,8 @@ MainWindow::MainWindow(QWidget *parent)
     // ====== KONTENER NA 4 WYKRESY (wewnatrz wykresygroupBox) ======
     QWidget *chartsContainer = new QWidget(this);
     QVBoxLayout *chartsLayout = new QVBoxLayout(chartsContainer);
-    chartsLayout->setSpacing(2);
-    chartsLayout->setContentsMargins(0, 0, 0, 0);
+    chartsLayout->setSpacing(0);
+    //chartsLayout->setContentsMargins(0, 0, 0, 0);
 
     // ------------------------------------------------------------------
     // CH1: PID (P czerwony, I zolty, D niebieski)
@@ -198,11 +198,11 @@ MainWindow::MainWindow(QWidget *parent)
     wykresyLayout->setContentsMargins(10, 10, 10, 10);
     wykresyLayout->addWidget(chartsContainer);
 
-    ui->groupBox->setStyleSheet(
-        "QGroupBox { border: 2px solid #4A90E2; border-radius: 8px; "
-        "margin-top: 5px; } "
-        "QGroupBox::title { subcontrol-origin: margin; left: 10px; "
-        "padding: 0 5px; }");
+    // ui->groupBox->setStyleSheet(
+    //     "QGroupBox { border: 2px solid #4A90E2; border-radius: 8px; "
+    //     "margin-top: 5px; } "
+    //     "QGroupBox::title { subcontrol-origin: margin; left: 10px; "
+    //     "padding: 0 5px; }");
 
     // ====== CONNECTY ======
     connect(ui->StartPB, &QPushButton::clicked,
