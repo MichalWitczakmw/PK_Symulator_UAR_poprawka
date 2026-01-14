@@ -16,15 +16,15 @@ private:
     double m_minY = -10.0, m_maxY = 10.0;
     bool m_ogrSterowania = true, m_ogrRegulowania = true;
 
-    deque<double> m_buforU; // Bufor próbek sterowania (dla B)
-    deque<double> m_buforOpoznienia; // Bufor opóŸnienia transportowego
-    deque<double> m_buforY; // Bufor próbek regulowanej (dla A)
+    deque<double> m_buforU; // Bufor probek sterowania (dla B)
+    deque<double> m_buforOpoznienia; // Bufor opoznienia transportowego
+    deque<double> m_buforY; // Bufor probek regulowanej (dla A)
 
-    // Generator zak³óceñ
+    // Generator zaklocen
     mt19937 m_GeneratorZaklocen;
     normal_distribution<double> m_rozkladZaklocen;
 
-    // Pomocnicze funkcje ograniczeñ
+    // Pomocnicze funkcje ograniczen
     double nasycenie(double wartosc, double minWartosc, double maxWartosc) 
     {
         return max(minWartosc, min(maxWartosc, wartosc));
@@ -42,15 +42,15 @@ public:
     // Jednokrokowa symulacja
     double symuluj(double sygnalSterujacy);
 
-    // Ustawienia ograniczeñ
+    // Ustawienia ograniczen
     void setOgrSterowania(double minU, double maxU, bool aktywne = true);
     void setOgrRegulowania(double minY, double maxY, bool aktywne = true);
 
-    // Wy³¹czanie/w³¹czanie ograniczeñ
+    // Wylaczanie/wlaczanie ograniczen
     void setOgrSterowaniaAktywne(bool aktywne);
     void setOgrRegulowaniaAktywne(bool aktywne);
 
-    // Zmiana parametrów modelu w locie
+    // Zmiana parametrow modelu w locie
     void setA(const vector<double>& A);
     void setB(const vector<double>& B);
     void setopoznienieTransport(int opoznienieTransportowe);

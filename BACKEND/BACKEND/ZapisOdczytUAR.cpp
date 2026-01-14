@@ -1,102 +1,158 @@
 #include "ZapisOdczytUAR.h"
-#include "SymulacjaUAR.h"
-//#include <nlohmann/json.hpp>
+#include "SymulatorUAR.h"
 
-//using json = nlohmann::json;
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QDebug>
 
-bool ZapisOdczytUAR::zapiszDoPliku(const string& sciezka, const SymulacjaUAR& symulacja)  const
+bool ZapisOdczytUAR::zapiszDoPliku(const QString& sciezka,
+                                   const SymulatorUAR& sym) const
 {
-    /*json j;
+    // === ARX z SymulatorUAR ===
+    SymulatorUAR::KonfiguracjaARX arxCfg = sym.getKonfiguracjaARX();
 
-	//SymulacjaUAR
-	j["symulacja"]["uchyb"] = symulacja.getUchyb();
-	j["symulacja"]["sterowanie"] = symulacja.getSterowanie();
-	j["symulacja"]["wartoscZadana"] = symulacja.getWartoscZadana();
-	j["symulacja"]["wartoscRegulowana"] = symulacja.getWartoscRegulowana();
-	//j["symulacja"]["poprzedniaWartoscRegulowana"] = symulacja.getPoprzedniaWartoscRegulowana();
+    // === PID & Generator bezposrednio z SymulacjaUAR ===
+    const auto& sim = sym.getSymulacja();
+    const auto& reg = sim.getRegulator();
+    const auto& gen = sim.getGenerator();
 
-	// Model_ARX
-	j["model"]["wspolczynnikA"] = symulacja.model().getA();
-	j["model"]["wspolczynnikB"] = symulacja.model().getB();
-	j["model"]["opoznienieTransportowe"] = symulacja.model().getOpoznienieTransport();
-	j["model"]["odchylenieZaklocen"] = symulacja.model().getOdchylenieZaklocen();
-	j["model"]["minU"] = symulacja.model().getMinU();
-	j["model"]["maxU"] = symulacja.model().getMaxU();
-	j["model"]["minY"] = symulacja.model().getMinY();
-	j["model"]["maxY"] = symulacja.model().getMaxY();
-	j["model"]["ogrSterowania"] = symulacja.model().getJestOgrSterowaniaAktywne();
-	j["model"]["ogrRegulowania"] = symulacja.model().getJestgrRegulowaniaAktywne();
+    QJsonObject root;
 
-	// Regulator_PID
-	j["regulator"]["kp"] = symulacja.regulator().getKp();
-	j["regulator"]["ti"] = symulacja.regulator().getTi();
-	j["regulator"]["td"] = symulacja.regulator().getTd();
-	j["regulator"]["ogrMin"] = symulacja.regulator().getOgrMin();
-	j["regulator"]["ogrMax"] = symulacja.regulator().getOgrMax();
-	j["regulator"]["trybCalk"] = static_cast<int>(symulacja.regulator().getLiczCalk());
+    // ===== SYMULACJA =====
+    QJsonObject jSim;
+    jSim["interwalMs"]   = sym.getInterwalMs();   // dodasz getter
+    jSim["czasTrwaniaS"] = sym.getCzasTrwaniaS(); // dodasz getter
+    root["symulacja"]    = jSim;
 
-	// Generator
-	j["generator"]["typ"] = static_cast<int>(symulacja.generator().getTyp());
-	j["generator"]["amplituda"] = symulacja.generator().getAmplituda();
-	j["generator"]["okres"] = symulacja.generator().getOkres();
-	j["generator"]["wypelnienie"] = symulacja.generator().getWypelnienie();
-	j["generator"]["skladowaStala"] = symulacja.generator().getSkladowaStala();
+    // ------- MODEL (ARX) -------
+    QJsonObject jModel;
+    jModel["A"]          = arxCfg.tekstA;
+    jModel["B"]          = arxCfg.tekstB;
+    jModel["opoznienie"] = arxCfg.opoznienie;
+    jModel["szum"]       = arxCfg.szum;
+    jModel["minVal"]     = arxCfg.minVal;
+    jModel["maxVal"]     = arxCfg.maxVal;
+    jModel["ogr"]        = arxCfg.uzywajOgraniczen;
+    root["model"]        = jModel;
 
-	std::ofstream plik(sciezka);
-	if (!plik.is_open())
-		return false;
-	plik << j.dump(4);
-    plik.close();*/
+    // ------- REGULATOR PID -------
+    QJsonObject jReg;
+    jReg["kp"]      = reg.getKp();
+    jReg["ti"]      = reg.getTi();
+    jReg["td"]      = reg.getTd();
+    jReg["ogrMin"]  = reg.getOgrMin();
+    jReg["ogrMax"]  = reg.getOgrMax();
+    jReg["trybCalk"]= static_cast<int>(reg.getLiczCalk());
+    root["regulator"] = jReg;
+
+    // ------- GENERATOR -------
+    QJsonObject jGen;
+    jGen["typ"]          = static_cast<int>(gen.getTyp());
+    jGen["amplituda"]    = gen.getAmplituda();
+    jGen["okres"]        = gen.getOkres();
+    jGen["wypelnienie"]  = gen.getWypelnienie();
+    jGen["skladowaStala"]= gen.getSkladowaStala();
+    root["generator"]    = jGen;
+
+    // ------- zapis do pliku -------
+    QJsonDocument doc(root);
+
+    QFile file(sciezka);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        qWarning() << "Nie mozna otworzyc pliku do zapisu:" << sciezka;
+        return false;
+    }
+
+    file.write(doc.toJson(QJsonDocument::Indented));
+    file.close();
+
+    qDebug() << "Konfiguracja UAR zapisana do" << sciezka;
     return true;
 }
 
-bool ZapisOdczytUAR::odczytajZPliku(const string& sciezka, SymulacjaUAR& symulacja) const
+bool ZapisOdczytUAR::odczytajZPliku(const QString& sciezka,
+                                    SymulatorUAR& sym) const
 {
-   /* ifstream plik(sciezka);
-    if (!plik.is_open())
+    QFile file(sciezka);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "Nie mozna otworzyc pliku do odczytu:" << sciezka;
         return false;
-    json j;
-    plik >> j;
+    }
 
-    // SymulacjaUAR
-    symulacja.setUchyb(j["symulacja"]["uchyb"].get<double>());
-    symulacja.setSterowanie(j["symulacja"]["sterowanie"].get<double>());
-    symulacja.setWartoscZadana(j["symulacja"]["wartoscZadana"].get<double>());
-    symulacja.setWartoscRegulowana(j["symulacja"]["wartoscRegulowana"].get<double>());
-    //symulacja.setPoprzedniaWartoscRegulowana(j["symulacja"]["poprzedniaWartoscRegulowana"].get<double>());
+    QByteArray data = file.readAll();
+    file.close();
 
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(data, &err);
+    if (err.error != QJsonParseError::NoError || !doc.isObject()) {
+        qWarning() << "Blad parsowania JSON:" << err.errorString();
+        return false;
+    }
 
-    // Model ARX
-    symulacja.model().setA(j["model"]["wspolczynnikA"].get<std::vector<double>>());
-    symulacja.model().setB(j["model"]["wspolczynnikB"].get<std::vector<double>>());
-    symulacja.model().setopoznienieTransport(j["model"]["opoznienieTransportowe"].get<int>());
-    symulacja.model().setOdchylenieZaklocen(j["model"]["odchylenieZaklocen"].get<double>());
-    symulacja.model().setOgrSterowania(
-        j["model"]["minU"].get<double>(),
-        j["model"]["maxU"].get<double>(),
-        j["model"]["ogrSterowania"].get<bool>());
-    symulacja.model().setOgrRegulowania(
-        j["model"]["minY"].get<double>(),
-        j["model"]["maxY"].get<double>(),
-        j["model"]["ogrRegulowania"].get<bool>());
+    QJsonObject root = doc.object();
 
-    // Regulator PID
-    symulacja.regulator().setKp(j["regulator"]["kp"].get<double>());
-    symulacja.regulator().setTi(j["regulator"]["ti"].get<double>());
-    symulacja.regulator().setTd(j["regulator"]["td"].get<double>());
-    symulacja.regulator().setOgraniczenia(
-        j["regulator"]["ogrMin"].get<double>(),
-        j["regulator"]["ogrMax"].get<double>());
-    symulacja.regulator().setLiczCalk(
-        static_cast<Regulator_PID::LiczCalk>(j["regulator"]["trybCalk"].get<int>()));
+    if (root.contains("symulacja") && root["symulacja"].isObject()) {
+        QJsonObject jSim = root["symulacja"].toObject();
+        int interwalMs   = jSim["interwalMs"].toInt(200);
+        double czasS     = jSim["czasTrwaniaS"].toDouble(50.0);
 
-    // Generator
-    symulacja.generator().setTyp(
-        static_cast<TypSygna³u>(j["generator"]["typ"].get<int>()));
-    symulacja.generator().setAmplituda(j["generator"]["amplituda"].get<double>());
-    symulacja.generator().setOkres(j["generator"]["okres"].get<double>());
-    symulacja.generator().setWypelnienie(j["generator"]["wypelnienie"].get<double>());
-    symulacja.generator().setSkladowaStala(j["generator"]["skladowaStala"].get<double>());
-*/
+        sym.ustawInterwalSymulacji(interwalMs);
+        sym.ustawCzasTrwania(czasS);
+    }
+
+    // ===== ARX =====
+    if (root.contains("model") && root["model"].isObject()) {
+        QJsonObject jm = root["model"].toObject();
+
+        QString tekstA    = jm["A"].toString();
+        QString tekstB    = jm["B"].toString();
+        int     opoznienie= jm["opoznienie"].toInt(1);
+        double  szum      = jm["szum"].toDouble(0.0);
+        double  minVal    = jm["minVal"].toDouble(-10.0);
+        double  maxVal    = jm["maxVal"].toDouble(10.0);
+        bool    ogr       = jm["ogr"].toBool(true);
+
+        sym.konfigurujARX(tekstA, tekstB,
+                          opoznienie, szum,
+                          minVal, maxVal, ogr);
+    }
+
+    // ===== PID =====
+    if (root.contains("regulator") && root["regulator"].isObject()) {
+        QJsonObject jr = root["regulator"].toObject();
+
+        double kp   = jr["kp"].toDouble(1.0);
+        double ti   = jr["ti"].toDouble(0.0);
+        double td   = jr["td"].toDouble(0.0);
+        double omin = jr["ogrMin"].toDouble(-1e10);
+        double omax = jr["ogrMax"].toDouble(1e10);
+        int    tryb = jr["trybCalk"].toInt(0);
+
+        sym.ustawNastawyPID(kp, ti, td);
+        sym.ustawOgraniczeniaRegulatora(omin, omax);
+        sym.ustawTrybCalkowania(
+            static_cast<Regulator_PID::LiczCalk>(tryb));
+    }
+
+    // ===== GENERATOR =====
+    if (root.contains("generator") && root["generator"].isObject()) {
+        QJsonObject jg = root["generator"].toObject();
+
+        int    typ      = jg["typ"].toInt(0);
+        double A        = jg["amplituda"].toDouble(1.0);
+        double okres    = jg["okres"].toDouble(10.0);
+        double wypeln   = jg["wypelnienie"].toDouble(0.5);
+        double S        = jg["skladowaStala"].toDouble(0.0);
+
+        if (typ == static_cast<int>(TypSygnalu::Sinus)) {
+            sym.ustawGeneratorSinus(A, okres, S);
+        } else {
+            sym.ustawGeneratorProstokat(A, okres, wypeln, S);
+        }
+    }
+
+    qDebug() << "Konfiguracja UAR wczytana z" << sciezka;
     return true;
 }

@@ -2,6 +2,8 @@
 #define SYMULATORUAR_H
 
 #include "../BACKEND/SymulacjaUAR.h"
+#include "../BACKEND/ZapisOdczytUAR.h"
+
 #include <QObject>
 #include <QTimer>
 #include <QVector>
@@ -17,14 +19,14 @@ public:
     explicit SymulatorUAR(QObject* parent = nullptr);
     ~SymulatorUAR();
 
-    // === ZARZĄDZANIE CYKLEM ŻYCIA ===
-    void uruchom(int interwałMs = 200);
+    // === ZARZaDZANIE CYKLEM żYCIA ===
+    void uruchom(int interwalMs = 200);
     void zatrzymaj();
     void resetuj();
 
     // === KONFIGURACJA MODELU ARX ===
     bool ustawWspolczynnikiARX(const std::vector<double>& A, const std::vector<double>& B,
-                               int opóźnienieTransportowe = 1, double odchylenieSzumu = 0.0);
+                               int opoznienieTransportowe = 1, double odchylenieSzumu = 0.0);
     bool ustawOgraniczeniaModelu(double minU, double maxU, double minY, double maxY);
 
     // === KONFIGURACJA REGULATORA PID ===
@@ -34,15 +36,15 @@ public:
     void resetujPamiecRegulatora();
 
     // === KONFIGURACJA GENERATORA ===
-    bool ustawGeneratorSinus(double amplituda, double okresTRZ, double składowaStała);
-    bool ustawGeneratorProstokąt(double amplituda, double okresTRZ, double wypełnienie, double składowaStała);
+    bool ustawGeneratorSinus(double amplituda, double okresTRZ, double skladowaStala);
+    bool ustawGeneratorProstokat(double amplituda, double okresTRZ, double wypelnienie, double skladowaStala);
     bool ustawWzmocnienieGeneratora(double wzmocnienie);
 
     // === KONFIGURACJA SYMULACJI ===
-    void ustawInterwalSymulacji(int interwałMs);
+    void ustawInterwalSymulacji(int interwalMs);
     void ustawOknoObserwacji(double sekundy);
 
-    // === DOSTĘP DO DANYCH DLA GUI ===
+    // === DOSTeP DO DANYCH DLA GUI ===
     double getWartoscZadana() const;
     double getWartoscRegulowana() const;
     double getUchyb() const;
@@ -52,7 +54,7 @@ public:
     double getSkladowaD() const;
     double getCzasSymulacji() const;
 
-    // Historia dla wykresów (ostatnie N próbek)
+    // Historia dla wykresow (ostatnie N probek)
     const QVector<double>& getHistoriaWartoscZadana() const;
     const QVector<double>& getHistoriaWartoscRegulowana() const;
     const QVector<double>& getHistoriaUchyb() const;
@@ -63,7 +65,7 @@ public:
     const QVector<double>& getHistoriaCzas() const;
 
     // Stan symulacji
-    bool isRunning() const { return m_czyDziała; }
+    bool isRunning() const { return m_czyDziala; }
 
     const SymulacjaUAR& getSymulacja() const { return m_symulacja; }
 
@@ -94,13 +96,21 @@ public:
 
     KonfiguracjaARX getKonfiguracjaARX() const;
 
+    void zapiszKonfiguracje();
+    void odczytajKonfiguracje();
+
+    int  getInterwalMs() const { return m_interwalMs; }
+    double getCzasTrwaniaS() const { return m_czasTrwaniaS; }
+    void ustawCzasTrwania(double sekundy) { m_czasTrwaniaS = sekundy; }
 
 signals:
     void symulacjaUruchomiona();
     void symulacjaZatrzymana();
     void symulacjaZresetowana();
-    void stanSymulacjiZmieniony();  // GUI może odświeżyć wykresy
-     void dataUpdated(double czas, double y);  // Emit po każdym kroku
+    void stanSymulacjiZmieniony();  // GUI może odswieżyc wykresy
+    void dataUpdated(double czas, double y);  // Emit po każdym kroku
+
+    void konfiguracjaWczytana();
 
 private slots:
     void wykonajKrokSymulacji();
@@ -108,16 +118,18 @@ private slots:
 private:
     // === KOMPONENTY WARSTWY DANYCH ===
     SymulacjaUAR m_symulacja;
+    ZapisOdczytUAR m_zapisOdczyt;
 
-    // === ZARZĄDZANIE CZASEM ===
+    // === ZARZaDZANIE CZASEM ===
     QTimer* m_timer;
-    int m_interwałMs = 200;              // interwał w ms
-    bool m_czyDziała = false;
+    int m_interwalMs = 200;              // interwal w ms
+    bool m_czyDziala = false;
+    double m_czasTrwaniaS = 50.0;
 
     // === KONWERSJA CZASU RZECZYWISTEGO ↔ DYSKRETNEGO ===
-    double m_współczynnikTRZdoT = 5.0;   // TRZ[sek]*1000 / TT[ms]
+    double m_wspolczynnikTRZdoT = 5.0;   // TRZ[sek]*1000 / TT[ms]
 
-    // === HISTORIA DLA WYKRESÓW ===
+    // === HISTORIA DLA WYKRESoW ===
     QVector<double> m_historiaWartoscZadana;
     QVector<double> m_historiaWartoscRegulowana;
     QVector<double> m_historiaUchyb;

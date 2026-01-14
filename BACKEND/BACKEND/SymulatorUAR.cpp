@@ -2,23 +2,23 @@
 #include "Generator.h"
 #include <QDebug>
 #include <QStringList>
-
+#include <QFileDialog>
 
 SymulatorUAR::SymulatorUAR(QObject* parent)
     : QObject(parent)
     , m_symulacja(
           Model_ARX({1, -0.4, -0.2}, {0.6,0.2,0.0}, 1, 0.0),
-          Regulator_PID(1.0, 0.0, 0.0),
+          Regulator_PID(1.0, 1.0, 0.0),
           Generator()
           ),m_timer(new QTimer(this))
 {
-    // Połączenie timera z slotem symulacji
+    // Polaczenie timera z slotem symulacji
     connect(m_timer, &QTimer::timeout, this, &SymulatorUAR::wykonajKrokSymulacji);
 
-    // Domyślna konfiguracja wzorcowa do testów
+    // Domyslna konfiguracja wzorcowa do testow
     ustawWspolczynnikiARX({1, -0.4, -0.2}, {0.6,0.2,0.0}, 1, 0.0);
-    ustawNastawyPID(1.0, 0.0, 0.0);
-    //ustawGeneratorProstokąt(1.0, 50.0, 0.5, 0.0);  // TRZ = 50s przy TT=200ms
+    ustawNastawyPID(1.0, 1.0, 0.0);
+    //ustawGeneratorProstokat(1.0, 50.0, 0.5, 0.0);  // TRZ = 50s przy TT=200ms
     ustawGeneratorSinus(1.0,10,0);
 
     m_czasStartu = std::chrono::steady_clock::now();
@@ -31,33 +31,33 @@ SymulatorUAR::~SymulatorUAR()
     }
 }
 
-// === ZARZĄDZANIE CYKLEM ŻYCIA ===
-void SymulatorUAR::uruchom(int interwałMs)
+// === ZARZaDZANIE CYKLEM zYCIA ===
+void SymulatorUAR::uruchom(int interwalMs)
 {
-    if (m_czyDziała) {
-        qDebug() << "Symulacja już działa!";
+    if (m_czyDziala) {
+        qDebug() << "Symulacja juz dziala!";
         return;
     }
 
-    m_interwałMs = qMax(10, qMin(1000, interwałMs));  // 10-1000ms
-    m_timer->start(m_interwałMs);
-    m_czyDziała = true;
+    m_interwalMs = qMax(10, qMin(1000, interwalMs));  // 10-1000ms
+    m_timer->start(m_interwalMs);
+    m_czyDziala = true;
 
-    m_współczynnikTRZdoT = (1000.0 / m_interwałMs);  // TRZ[sek]*1000 / TT[ms]
+    m_wspolczynnikTRZdoT = (1000.0 / m_interwalMs);  // TRZ[sek]*1000 / TT[ms]
 
     emit symulacjaUruchomiona();
-    qDebug() << "Symulacja uruchomiona, interwał:" << m_interwałMs << "ms";
+    qDebug() << "Symulacja uruchomiona, interwal:" << m_interwalMs << "ms";
 }
 
 void SymulatorUAR::zatrzymaj()
 {
-    if (!m_czyDziała) {
-        qDebug() << "Symulacja nie działa!";
+    if (!m_czyDziala) {
+        qDebug() << "Symulacja nie dziala!";
         return;
     }
 
     m_timer->stop();
-    m_czyDziała = false;
+    m_czyDziala = false;
 
     emit symulacjaZatrzymana();
     qDebug() << "Symulacja zatrzymana";
@@ -76,20 +76,20 @@ void SymulatorUAR::resetuj()
 // === KONFIGURACJA MODELU ARX ===
 bool SymulatorUAR::ustawWspolczynnikiARX(const std::vector<double>& A,
                                          const std::vector<double>& B,
-                                         int opóźnienieTransportowe, double odchylenieSzumu)
+                                         int opoznienieTransportowe, double odchylenieSzumu)
 {
     if (A.size() < 1 || B.size() < 1) {
-        qWarning() << "ARX: minimum 1 współczynnik A i B!";
+        qWarning() << "ARX: minimum 1 wspolczynnik A i B!";
         return false;
     }
-    if (opóźnienieTransportowe < 1) {
-        qWarning() << "ARX: opóźnienie transportowe minimum 1!";
+    if (opoznienieTransportowe < 1) {
+        qWarning() << "ARX: opoznienie transportowe minimum 1!";
         return false;
     }
 
     m_symulacja.getModelRef().setA(A);
     m_symulacja.getModelRef().setB(B);
-    m_symulacja.getModelRef().setopoznienieTransport(opóźnienieTransportowe);
+    m_symulacja.getModelRef().setopoznienieTransport(opoznienieTransportowe);
     m_symulacja.getModelRef().setOdchylenieZaklocen(odchylenieSzumu);
 
     qDebug() << "ARX skonfigurowany: A=" << A.size() << ", B=" << B.size();
@@ -107,7 +107,7 @@ bool SymulatorUAR::ustawOgraniczeniaModelu(double minU, double maxU, double minY
 bool SymulatorUAR::ustawNastawyPID(double kp, double ti, double td)
 {
     if (kp < 0) {
-        qWarning() << "PID: Kp nie może być ujemne!";
+        qWarning() << "PID: Kp nie moze byc ujemne!";
         return false;
     }
 
@@ -136,67 +136,67 @@ void SymulatorUAR::resetujPamiecRegulatora()
 }
 
 // === KONFIGURACJA GENERATORA ===
-bool SymulatorUAR::ustawGeneratorSinus(double amplituda, double okresTRZ, double składowaStała)
+bool SymulatorUAR::ustawGeneratorSinus(double amplituda, double okresTRZ, double skladowaStala)
 {
     if (okresTRZ <= 0) {
-        qWarning() << "Generator: okres musi być > 0!";
+        qWarning() << "Generator: okres musi byc > 0!";
         return false;
     }
 
-    double okresDyskretny = okresTRZ * m_współczynnikTRZdoT;
+    double okresDyskretny = okresTRZ * m_wspolczynnikTRZdoT;
     m_symulacja.getGeneratorRef().setTyp(TypSygnalu::Sinus);
     m_symulacja.getGeneratorRef().setAmplituda(amplituda);
     m_symulacja.getGeneratorRef().setOkres(okresDyskretny);
-    m_symulacja.getGeneratorRef().setSkladowaStala(składowaStała);
+    m_symulacja.getGeneratorRef().setSkladowaStala(skladowaStala);
 
     qDebug() << "Generator sinus: A=" << amplituda << ", TRZ=" << okresTRZ << "s";
     return true;
 }
 
-bool SymulatorUAR::ustawGeneratorProstokąt(double amplituda, double okresTRZ,
-                                           double wypełnienie, double składowaStała)
+bool SymulatorUAR::ustawGeneratorProstokat(double amplituda, double okresTRZ,
+                                           double wypelnienie, double skladowaStala)
 {
-    if (okresTRZ <= 0 || wypełnienie < 0 || wypełnienie > 1) {
-        qWarning() << "Generator: nieprawidłowe parametry!";
+    if (okresTRZ <= 0 || wypelnienie < 0 || wypelnienie > 1) {
+        qWarning() << "Generator: nieprawidlowe parametry!";
         return false;
     }
 
-    double okresDyskretny = okresTRZ * m_współczynnikTRZdoT;
+    double okresDyskretny = okresTRZ * m_wspolczynnikTRZdoT;
     m_symulacja.getGeneratorRef().setTyp(TypSygnalu::Prostokat);
     m_symulacja.getGeneratorRef().setAmplituda(amplituda);
     m_symulacja.getGeneratorRef().setOkres(okresDyskretny);
-    m_symulacja.getGeneratorRef().setWypelnienie(wypełnienie);
-    m_symulacja.getGeneratorRef().setSkladowaStala(składowaStała);
+    m_symulacja.getGeneratorRef().setWypelnienie(wypelnienie);
+    m_symulacja.getGeneratorRef().setSkladowaStala(skladowaStala);
 
-    qDebug() << "Generator prostokąt: A=" << amplituda << ", TRZ=" << okresTRZ << "s";
+    qDebug() << "Generator prostokat: A=" << amplituda << ", TRZ=" << okresTRZ << "s";
     return true;
 }
 
 bool SymulatorUAR::ustawWzmocnienieGeneratora(double wzmocnienie)
 {
-    // możesz dodać prostą walidację, np. wzmocnienie >= 0
+    // mozesz dodac prosta walidacje, np. wzmocnienie >= 0
     m_symulacja.getGeneratorRef().setAmplituda(wzmocnienie);
     qDebug() << "Generator: nowe wzmocnienie (amplituda)=" << wzmocnienie;
     return true;
 }
 
 
-void SymulatorUAR::ustawInterwalSymulacji(int interwałMs)
+void SymulatorUAR::ustawInterwalSymulacji(int interwalMs)
 {
-    if (m_czyDziała) {
-        qDebug() << "Zmiana interwału podczas symulacji!";
-        m_interwałMs = qMax(10, qMin(1000, interwałMs));
-        m_timer->setInterval(m_interwałMs);
-        m_współczynnikTRZdoT = (1000.0 / m_interwałMs);
+    if (m_czyDziala) {
+        qDebug() << "Zmiana interwalu podczas symulacji!";
+        m_interwalMs = qMax(10, qMin(1000, interwalMs));
+        m_timer->setInterval(m_interwalMs);
+        m_wspolczynnikTRZdoT = (1000.0 / m_interwalMs);
     }
 }
 void SymulatorUAR::ustawOknoObserwacji(double sekundy)
 {
-    // na razie możesz np. tylko przeliczyć na maks. ilość punktów historii
-    // przy interwale m_interwałMs (ms):
-    // czas okna [s] -> liczba próbek = sekundy * (1000 / m_interwałMs)
+    // na razie mozesz np. tylko przeliczyc na maks. ilosc punktow historii
+    // przy interwale m_interwalMs (ms):
+    // czas okna [s] -> liczba probek = sekundy * (1000 / m_interwalMs)
 
-    double iloscProbek = sekundy * (1000.0 / m_interwałMs);
+    double iloscProbek = sekundy * (1000.0 / m_interwalMs);
     m_maxHistoriaPunktow = static_cast<int>(iloscProbek);
 
     if (m_maxHistoriaPunktow < 1)
@@ -204,13 +204,13 @@ void SymulatorUAR::ustawOknoObserwacji(double sekundy)
 }
 
 
-// === DOSTĘP DO DANYCH ===
+// === DOSTeP DO DANYCH ===
 double SymulatorUAR::getWartoscZadana() const { return m_symulacja.getWartoscZadana(); }
 double SymulatorUAR::getWartoscRegulowana() const { return m_symulacja.getWartoscRegulowana(); }
 double SymulatorUAR::getUchyb() const { return m_symulacja.getUchyb(); }
 double SymulatorUAR::getSterowanie() const { return m_symulacja.getSterowanie(); }
 
-// Składowe PID (obliczone z regulatora)
+// Skladowe PID (obliczone z regulatora)
 double SymulatorUAR::getSkladowaP() const { return obliczSkladowaP(); }
 double SymulatorUAR::getSkladowaI() const { return obliczSkladowaI(); }
 double SymulatorUAR::getSkladowaD() const { return obliczSkladowaD(); }
@@ -221,7 +221,7 @@ double SymulatorUAR::getCzasSymulacji() const
     return std::chrono::duration<double>(teraz - m_czasStartu).count();
 }
 
-// Historia dla wykresów
+// Historia dla wykresow
 const QVector<double>& SymulatorUAR::getHistoriaWartoscZadana() const { return m_historiaWartoscZadana; }
 const QVector<double>& SymulatorUAR::getHistoriaWartoscRegulowana() const { return m_historiaWartoscRegulowana; }
 const QVector<double>& SymulatorUAR::getHistoriaUchyb() const { return m_historiaUchyb; }
@@ -234,12 +234,12 @@ const QVector<double>& SymulatorUAR::getHistoriaCzas() const { return m_historia
 // === SLOT TIMERA ===
 void SymulatorUAR::wykonajKrokSymulacji()
 {
-    if (!m_czyDziała) return;
+    if (!m_czyDziala) return;
 
     // Jeden krok symulacji
     m_symulacja.wykonajKrok();
 
-    // Oblicz składowe PID
+    // Oblicz skladowe PID
     double sklP = obliczSkladowaP();
     double sklI = obliczSkladowaI();
     double sklD = obliczSkladowaD();
@@ -284,7 +284,7 @@ void SymulatorUAR::dodajPunktDoHistorii(double w, double y, double e, double u,
     m_historiaSkladowaD.append(sklD);
     m_historiaCzas.append(czas);
 
-    // Okno obserwacji - usuń najstarsze punkty
+    // Okno obserwacji - usun najstarsze punkty
     if (m_historiaWartoscZadana.size() > m_maxHistoriaPunktow) {
         m_historiaWartoscZadana.removeFirst();
         m_historiaWartoscRegulowana.removeFirst();
@@ -328,7 +328,7 @@ static std::vector<double> rozdzielWspolczynnik(const QString &text, bool &ok)
     }
 
     for (const QString &raw : parts) {
-        QString s = raw.trimmed();      // usuń spacje
+        QString s = raw.trimmed();      // usun spacje
         if (s.isEmpty())
             continue;
 
@@ -408,6 +408,41 @@ SymulatorUAR::KonfiguracjaARX SymulatorUAR::getKonfiguracjaARX() const
                            && model.getJestgrRegulowaniaAktywne();
 
     return cfg;
+}
+
+
+
+
+void SymulatorUAR::zapiszKonfiguracje()
+{
+    QString sciezka = QFileDialog::getSaveFileName(
+        nullptr,
+        "Zapisz konfigurację UAR",
+        "",
+        "Pliki JSON (*.json)");
+
+    if (sciezka.isEmpty())
+        return;
+
+    m_zapisOdczyt.zapiszDoPliku(sciezka, *this);
+}
+
+void SymulatorUAR::odczytajKonfiguracje()
+{
+    QString sciezka = QFileDialog::getOpenFileName(
+        nullptr,
+        "Wczytaj konfigurację UAR",
+        "",
+        "Pliki JSON (*.json)");
+
+    if (sciezka.isEmpty())
+        return;
+
+    if (!m_zapisOdczyt.odczytajZPliku(sciezka, *this))
+        return;
+
+    emit konfiguracjaWczytana();
+
 }
 
 

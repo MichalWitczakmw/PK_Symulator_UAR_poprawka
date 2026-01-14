@@ -3,15 +3,11 @@
 
 #include <QMainWindow>
 #include "arxdialog.h"
+#include "../../BACKEND/BACKEND/SymulatorUAR.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
-
-class SymulatorUAR;
-class Generator;
-class Model_ARX;
-class Regulator_PID;
 
 QT_FORWARD_DECLARE_CLASS(QChartView)
 QT_FORWARD_DECLARE_CLASS(QLineSeries)
@@ -35,11 +31,17 @@ private slots:
 
     bool eventFilter(QObject *obj, QEvent *event);
 
+    void on_zapiszPushButton_clicked();
+
+    void on_wczytajPushButton_clicked();
+
 private:
     Ui::MainWindow *ui;
-    SymulatorUAR *m_symulator;
+    SymulatorUAR m_symulator;
+    // dialog ARX
+    ArxDialog m_arxDialog;
 
-    // stare jednoseryjne rzeczy – możesz zostawić, ale NIE będą używane
+    // stare jednoseryjne rzeczy – mozesz zostawic, ale NIE beda uzywane
     QChartView *chartView;
     QLineSeries *series;
     QChart *chart;
@@ -60,14 +62,13 @@ private:
     QLineSeries *seriesE;    // e (uchyb)
     QLineSeries *seriesU;    // u (sterowanie)
 
-    // obiekty wykresów
+    // obiekty wykresow
     QChart *chartY;
     QChart *chartW;
     QChart *chartE;
     QChart *chartU;
 
-    // dialog ARX
-    ArxDialog *m_arxDialog;
+    void odswiezKontrolkiPoWczytaniu();
 };
 
 #endif // MAINWINDOW_H

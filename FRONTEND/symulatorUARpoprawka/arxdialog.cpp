@@ -13,7 +13,7 @@ ArxDialog::ArxDialog(QWidget *parent)
 
     setWindowTitle("ARX");
 
-    // Styl zbliżony do mockupu (ciemne tło, jasne pola)
+    // Styl zblizony do mockupu (ciemne tlo, jasne pola)
     // setStyleSheet(
     //     "QDialog { background-color: #202020; color: #f0f0f0; }"
     //     "QGroupBox { border: 1px solid #666666; border-radius: 6px; "
@@ -41,7 +41,7 @@ ArxDialog::ArxDialog(QWidget *parent)
     ui->pushButton->setFixedHeight(h);
     ui->pushButton_2->setFixedHeight(h);
 
-    // Domyślne wartości
+    // Domyslne wartosci
     ui->lineEditA->setPlaceholderText("-0.4, -0.4, 0.6");
     ui->lineEditB->setPlaceholderText("-0.4, -0.4, 0.6");
 
@@ -61,7 +61,7 @@ ArxDialog::ArxDialog(QWidget *parent)
 
     ui->checkBoxOgraniczenie->setChecked(true);
 
-    // Przypisz przyciski do slotów
+    // Przypisz przyciski do slotow
     connect(ui->pushButton,   &QPushButton::clicked,
             this, &ArxDialog::on_okButton_clicked);
     connect(ui->pushButton_2, &QPushButton::clicked,
@@ -110,7 +110,7 @@ bool ArxDialog::useLimits() const
     return ui->checkBoxOgraniczenie->isChecked();
 }
 
-// Proste parsowanie tekstu współczynników "a1, a2, a3"
+// Proste parsowanie tekstu wspolczynnikow "a1, a2, a3"
 
 QVector<double> ArxDialog::parseCoeffs(const QString &text, bool *ok) const
 {
@@ -145,20 +145,20 @@ void ArxDialog::on_okButton_clicked()
     QVector<double> B = parseCoeffs(ui->lineEditB->text(), &okB);
 
     if (!okA || !okB) {
-        QMessageBox::warning(this, tr("Błąd"),
-                             tr("Niepoprawny format współczynników A lub B.\n"
-                                "Użyj formatu: -0.4, -0.4, 0.6"));
+        QMessageBox::warning(this, tr("Blad"),
+                             tr("Niepoprawny format wspolczynnikow A lub B.\n"
+                                "Uzyj formatu: -0.4, -0.4, 0.6"));
         return;
     }
 
-    // jeśli chcesz, możesz tu od razu wysłać A, B do modelu ARX
+    // jesli chcesz, mozesz tu od razu wyslac A, B do modelu ARX
 
     accept();   // zamyka dialog (QDialog::Accepted)
 }
 
 void ArxDialog::pokazBlad(const QString &tekst)
 {
-    QMessageBox::warning(this, tr("Błąd"), tekst);
+    QMessageBox::warning(this, tr("Blad"), tekst);
 }
 
 
@@ -190,4 +190,16 @@ void ArxDialog::ustawZKonfiguracji(const QString &tekstA,
     ui->doubleSpinBoxMin->setValue(minVal);
     ui->doubleSpinBoxMax->setValue(maxVal);
     ui->checkBoxOgraniczenie->setChecked(uzywajOgraniczen);
+}
+
+void ArxDialog::setTekstA(const QString& t) { ui->lineEditA->setText(t); }
+void ArxDialog::setTekstB(const QString& t) { ui->lineEditB->setText(t); }
+void ArxDialog::setOpoznienie(int k) { ui->spinBoxOpoznienie->setValue(k); }
+void ArxDialog::setSzum(double s) { ui->doubleSpinBoxSzum->setValue(s); }
+void ArxDialog::setMinMax(double min, double max) {
+    ui->doubleSpinBoxMin->setValue(min);
+    ui->doubleSpinBoxMax->setValue(max);
+}
+void ArxDialog::setOgraniczeniaAktywne(bool on) {
+    ui->checkBoxOgraniczenie->setChecked(on);
 }

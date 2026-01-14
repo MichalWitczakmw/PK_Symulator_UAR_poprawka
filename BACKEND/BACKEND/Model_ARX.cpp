@@ -11,11 +11,11 @@ Model_ARX::Model_ARX(const vector<double>& wspolczynnikA, const vector<double>& 
 
 double Model_ARX::symuluj(double sygnalSterujacy) 
 {
-	// Ograniczenie sterowania (jeœli aktywne)
+    // Ograniczenie sterowania (jesli aktywne)
     if (m_ogrSterowania)
         sygnalSterujacy = nasycenie(sygnalSterujacy, m_minU, m_maxU);
 
-    // Aktualizacja bufor opóŸnienia transportowego
+    // Aktualizacja bufor opoznienia transportowego
     m_buforOpoznienia.push_back(sygnalSterujacy);
     double tymczasoweOpoznione = m_buforOpoznienia.front();
     m_buforOpoznienia.pop_front();
@@ -34,13 +34,13 @@ double Model_ARX::symuluj(double sygnalSterujacy)
     for (size_t i = 0; i < m_wspolczynnikA.size(); ++i)
         sumaA += m_wspolczynnikA[i] * m_buforY[m_wspolczynnikA.size() - 1 - i];
 
-    // Zak³ócenie (jeœli aktywne)
+    // Zaklocenie (jesli aktywne)
     double szum = (m_oSSzum > 0.0) ? m_rozkladZaklocen(m_GeneratorZaklocen) : 0.0;
 
     // Obliczenie wyniku
     double y = sumaB - sumaA + szum;
 
-	// Ograniczenie regulowanej wartoœci (jeœli aktywne)
+    // Ograniczenie regulowanej wartosci (jesli aktywne)
     if (m_ogrRegulowania)
         y = nasycenie(y, m_minY, m_maxY);
 
@@ -51,7 +51,7 @@ double Model_ARX::symuluj(double sygnalSterujacy)
     return y;
 }
 
-// Konfiguracja ograniczeñ 
+// Konfiguracja ograniczen
 void Model_ARX::setOgrSterowania(double minU, double maxU, bool aktywne) 
 {
     m_minU = minU; m_maxU = maxU; m_ogrSterowania = aktywne;
@@ -69,7 +69,7 @@ void Model_ARX::setOgrRegulowaniaAktywne(bool aktywne)
     m_ogrRegulowania = aktywne;
 }
 
-// Zmiana parametrów modelu
+// Zmiana parametrow modelu
 void Model_ARX::setA(const std::vector<double>& A) 
 {
     m_wspolczynnikA = A;

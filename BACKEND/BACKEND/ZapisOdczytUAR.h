@@ -1,21 +1,21 @@
 #pragma once
 
-#include <string>
-#include <fstream>
-//#include <nlohmann/json.hpp>
-#include "SymulacjaUAR.h"
+#include <QString>
 
-//using json = nlohmann::json;
+class SymulatorUAR;
 
-class SymulacjaUAR;
-
+// Klasa odpowiedzialna tylko za zapis/odczyt konfiguracji UAR w JSON (Qt).
 class ZapisOdczytUAR
 {
 public:
-    // Zapis konfiguracji do pliku JSON
-    bool zapiszDoPliku(const string& sciezka, const SymulacjaUAR& symulacja) const;
+    ZapisOdczytUAR() = default;
+    ~ZapisOdczytUAR() = default;
 
-    // Odczyt konfiguracji z pliku JSON
-    bool odczytajZPliku(const string& sciezka, SymulacjaUAR& symulacja) const ;
+    // Zapis konfiguracji (ARX, PID, Generator) do pliku JSON.
+    bool zapiszDoPliku(const QString& sciezka,
+                       const SymulatorUAR& symulator) const;
+
+    // Odczyt konfiguracji z pliku JSON i ustawienie jej w SymulatorUAR.
+    bool odczytajZPliku(const QString& sciezka,
+                        SymulatorUAR& symulator) const;
 };
-

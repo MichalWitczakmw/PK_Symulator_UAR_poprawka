@@ -9,7 +9,7 @@ class Regulator_PID
 public:
     enum class LiczCalk { Wew, Zew };
 
-    Regulator_PID(double kp = 1.0, double ti = 0.0, double td = 0.0);
+    Regulator_PID(double kp = 1.0, double ti = 1.0, double td = 0.0);
 
     void setKp(double kp) { m_kp = kp; }
     void setTi(double ti) { m_ti = ti; }

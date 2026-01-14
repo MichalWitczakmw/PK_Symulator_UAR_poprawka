@@ -1,6 +1,7 @@
 #ifndef ARXDIALOG_H
 #define ARXDIALOG_H
 
+#include "ui_arxdialog.h"
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -33,6 +34,14 @@ public:
                             double minVal,
                             double maxVal,
                             bool uzywajOgraniczen);
+
+    void setTekstA(const QString& t);
+    void setTekstB(const QString& t);
+    void setOpoznienie(int k);
+    void setSzum(double s);
+    void setMinMax(double min, double max);
+    void setOgraniczeniaAktywne(bool on);
+
 
 private slots:
     void on_okButton_clicked();
