@@ -4,37 +4,36 @@
 #include <random>
 #include <algorithm>
 
-using namespace std;
 
 class Model_ARX 
 {
 private:
-    vector<double> m_wspolczynnikA, m_wspolczynnikB;
+    std::vector<double> m_wspolczynnikA, m_wspolczynnikB;
     int m_opoznienieTransportowe;
     double m_oSSzum;
     double m_minU = -10.0, m_maxU = 10.0;
     double m_minY = -10.0, m_maxY = 10.0;
     bool m_ogrSterowania = true, m_ogrRegulowania = true;
 
-    deque<double> m_buforU; // Bufor probek sterowania (dla B)
-    deque<double> m_buforOpoznienia; // Bufor opoznienia transportowego
-    deque<double> m_buforY; // Bufor probek regulowanej (dla A)
+    std::deque<double> m_buforU; // Bufor probek sterowania (dla B)
+    std::deque<double> m_buforOpoznienia; // Bufor opoznienia transportowego
+    std::deque<double> m_buforY; // Bufor probek regulowanej (dla A)
 
     // Generator zaklocen
-    mt19937 m_GeneratorZaklocen;
-    normal_distribution<double> m_rozkladZaklocen;
+    std::mt19937 m_GeneratorZaklocen;
+    std::normal_distribution<double> m_rozkladZaklocen;
 
     // Pomocnicze funkcje ograniczen
     double nasycenie(double wartosc, double minWartosc, double maxWartosc) 
     {
-        return max(minWartosc, min(maxWartosc, wartosc));
+        return std::max(minWartosc, std::min(maxWartosc, wartosc));
     }
 
 public:
 
     Model_ARX(
-        const vector<double>& wspolczynnikA,
-        const vector<double>& wspolczynnikB,
+        const std::vector<double>& wspolczynnikA,
+        const std::vector<double>& wspolczynnikB,
         int opoznienieTransportowe = 1,
         double zaklocenie = 0.0
     );
@@ -51,13 +50,13 @@ public:
     void setOgrRegulowaniaAktywne(bool aktywne);
 
     // Zmiana parametrow modelu w locie
-    void setA(const vector<double>& A);
-    void setB(const vector<double>& B);
+    void setA(const std::vector<double>& A);
+    void setB(const std::vector<double>& B);
     void setopoznienieTransport(int opoznienieTransportowe);
     void setOdchylenieZaklocen(double odchylenieZaklocenia);
 
-    const vector<double>& getA() const { return m_wspolczynnikA; }
-    const vector<double>& getB() const { return m_wspolczynnikB; }
+    const std::vector<double>& getA() const { return m_wspolczynnikA; }
+    const std::vector<double>& getB() const { return m_wspolczynnikB; }
     int getOpoznienieTransport() const { return m_opoznienieTransportowe; }
     double getOdchylenieZaklocen() const { return m_oSSzum; }
     double getMinU() const { return m_minU; }

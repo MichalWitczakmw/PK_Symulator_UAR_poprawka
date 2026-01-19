@@ -1,8 +1,8 @@
 #include "Model_ARX.h"
 
-Model_ARX::Model_ARX(const vector<double>& wspolczynnikA, const vector<double>& wspolczynnikB, int opoznienieTransportowe, double zaklocenie)
-    : m_wspolczynnikA(wspolczynnikA), m_wspolczynnikB(wspolczynnikB), m_opoznienieTransportowe(max(1, opoznienieTransportowe)), m_oSSzum(zaklocenie),
-    m_GeneratorZaklocen(random_device{}()), m_rozkladZaklocen(0.0, (zaklocenie > 0.0) ? zaklocenie : 1e-9)
+Model_ARX::Model_ARX(const std::vector<double>& wspolczynnikA, const std::vector<double>& wspolczynnikB, int opoznienieTransportowe, double zaklocenie)
+    : m_wspolczynnikA(wspolczynnikA), m_wspolczynnikB(wspolczynnikB), m_opoznienieTransportowe(std::max(1, opoznienieTransportowe)), m_oSSzum(zaklocenie),
+    m_GeneratorZaklocen(std::random_device{}()), m_rozkladZaklocen(0.0, (zaklocenie > 0.0) ? zaklocenie : 1e-9)
 {
     m_buforU.assign(wspolczynnikB.size(), 0.0);
     m_buforOpoznienia.assign(m_opoznienieTransportowe, 0.0);
