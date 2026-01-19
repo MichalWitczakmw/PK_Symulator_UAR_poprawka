@@ -86,7 +86,7 @@ void MainWindow::initPlots()
         p->clearGraphs();
         p->xAxis->setLabel("t [s]");
         p->yAxis->setLabel(yLabel);
-        p->yAxis->setRange(-2, 2);
+        p->yAxis->setRange(-3, 3);
         p->axisRect()->setupFullAxesBox();
         p->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
         p->legend->setVisible(false);
