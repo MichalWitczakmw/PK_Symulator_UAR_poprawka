@@ -80,8 +80,10 @@ public:
                        const QString &bText,
                        int opoznienie,
                        double szum,
-                       double minVal,
-                       double maxVal,
+                       double minU,
+                       double maxU,
+                       double minY,
+                       double maxY,
                        bool uzywajOgraniczen);
 
     struct KonfiguracjaARX {
@@ -89,10 +91,13 @@ public:
         QString tekstB;
         int opoznienie;
         double szum;
-        double minVal;
-        double maxVal;
+        double minU;
+        double maxU;
+        double minY;
+        double maxY;
         bool uzywajOgraniczen;
     };
+
 
     KonfiguracjaARX getKonfiguracjaARX() const;
 

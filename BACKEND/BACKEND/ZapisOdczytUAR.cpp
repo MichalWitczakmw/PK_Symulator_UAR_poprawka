@@ -32,8 +32,10 @@ bool ZapisOdczytUAR::zapiszDoPliku(const QString& sciezka,
     jModel["B"]          = arxCfg.tekstB;
     jModel["opoznienie"] = arxCfg.opoznienie;
     jModel["szum"]       = arxCfg.szum;
-    jModel["minVal"]     = arxCfg.minVal;
-    jModel["maxVal"]     = arxCfg.maxVal;
+    jModel["minU"]     = arxCfg.minU;
+    jModel["maxU"]     = arxCfg.maxU;
+    jModel["minY"]     = arxCfg.minY;
+    jModel["maxY"]     = arxCfg.maxY;
     jModel["ogr"]        = arxCfg.uzywajOgraniczen;
     root["model"]        = jModel;
 
@@ -104,8 +106,8 @@ bool ZapisOdczytUAR::odczytajZPliku(const QString& sciezka,
     // ===== SYMULACJA =====
     if (root.contains("symulacja") && root["symulacja"].isObject()) {
         QJsonObject jSim = root["symulacja"].toObject();
-        int    interwalMs = jSim["interwalMs"].toInt(200);
-        double czasS      = jSim["czasTrwaniaS"].toDouble(50.0);
+        int    interwalMs = jSim["interwalMs"].toInt();
+        double czasS      = jSim["czasTrwaniaS"].toDouble();
 
         sym.ustawInterwalSymulacji(interwalMs);
         sym.ustawCzasTrwania(czasS);
@@ -117,27 +119,29 @@ bool ZapisOdczytUAR::odczytajZPliku(const QString& sciezka,
 
         QString tekstA     = jm["A"].toString();
         QString tekstB     = jm["B"].toString();
-        int     opoznienie = jm["opoznienie"].toInt(1);
-        double  szum       = jm["szum"].toDouble(0.0);
-        double  minVal     = jm["minVal"].toDouble(-10.0);
-        double  maxVal     = jm["maxVal"].toDouble(10.0);
+        int     opoznienie = jm["opoznienie"].toInt();
+        double  szum       = jm["szum"].toDouble();
+        double  minU       = jm["minU"].toDouble();
+        double  maxU       = jm["maxU"].toDouble();
+        double  minY       = jm["minY"].toDouble();
+        double  maxY       = jm["maxY"].toDouble();
         bool    ogr        = jm["ogr"].toBool(true);
 
         sym.konfigurujARX(tekstA, tekstB,
                           opoznienie, szum,
-                          minVal, maxVal, ogr);
+                          minU, maxU, minY, maxY, ogr);
     }
 
     // ===== REGULATOR PID =====
     if (root.contains("regulator") && root["regulator"].isObject()) {
         QJsonObject jr = root["regulator"].toObject();
 
-        double kp   = jr["kp"].toDouble(1.0);
-        double ti   = jr["ti"].toDouble(0.0);
-        double td   = jr["td"].toDouble(0.0);
-        double omin = jr["ogrMin"].toDouble(-1e10);
-        double omax = jr["ogrMax"].toDouble(1e10);
-        int    tryb = jr["trybCalk"].toInt(0);
+        double kp   = jr["kp"].toDouble();
+        double ti   = jr["ti"].toDouble();
+        double td   = jr["td"].toDouble();
+        double omin = jr["ogrMin"].toDouble();
+        double omax = jr["ogrMax"].toDouble();
+        int    tryb = jr["trybCalk"].toInt();
 
         sym.ustawNastawyPID(kp, ti, td);
         sym.ustawOgraniczeniaRegulatora(omin, omax);
@@ -149,11 +153,11 @@ bool ZapisOdczytUAR::odczytajZPliku(const QString& sciezka,
     if (root.contains("generator") && root["generator"].isObject()) {
         QJsonObject jg = root["generator"].toObject();
 
-        int    typ          = jg["typ"].toInt(0);
-        double A            = jg["amplituda"].toDouble(1.0);
-        double okresTRZ     = jg["okresTRZ"].toDouble(10.0);      // sekundy
-        double pProc        = jg["wypelnienieProc"].toDouble(50.0);
-        double S            = jg["skladowaStala"].toDouble(0.0);
+        int    typ          = jg["typ"].toInt();
+        double A            = jg["amplituda"].toDouble();
+        double okresTRZ     = jg["okresTRZ"].toDouble();      // sekundy
+        double pProc        = jg["wypelnienieProc"].toDouble();
+        double S            = jg["skladowaStala"].toDouble();
 
         // ustaw parametry generatora w warstwie usług
         sym.ustawGenerator(A, okresTRZ, pProc, S);

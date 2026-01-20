@@ -22,8 +22,10 @@ public:
 
     int delay() const;
     double noise() const;
-    double minVal() const;
-    double maxVal() const;
+    double minU() const;
+    double maxU() const;
+    double minY() const;
+    double maxY() const;
     bool useLimits() const;
     void pokazBlad(const QString &tekst);
 
@@ -31,21 +33,26 @@ public:
                             const QString &tekstB,
                             int opoznienie,
                             double szum,
-                            double minVal,
-                            double maxVal,
+                            double minU,
+                            double maxU,
+                            double minY,
+                            double maxY,
                             bool uzywajOgraniczen);
+
 
     void setTekstA(const QString& t);
     void setTekstB(const QString& t);
     void setOpoznienie(int k);
     void setSzum(double s);
-    void setMinMax(double min, double max);
+    void setMinMax(double minU, double maxU, double minY, double maxY);
     void setOgraniczeniaAktywne(bool on);
 
 
 private slots:
     void on_okButton_clicked();
     void on_cancelButton_clicked();
+
+    void on_checkBoxOgraniczenie_toggled(bool checked);
 
 private:
     Ui::ArxDialog *ui;

@@ -30,6 +30,8 @@ private slots:
     void on_zapiszPushButton_clicked();
     void on_wczytajPushButton_clicked();
 
+    void on_resetTiTdPIDpushButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     SymulatorUAR    m_symulator;

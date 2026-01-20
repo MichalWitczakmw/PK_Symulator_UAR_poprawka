@@ -8,6 +8,12 @@ ArxDialog::ArxDialog(QWidget *parent)
     , ui(new Ui::ArxDialog)
 {
     ui->setupUi(this);
+    this->setStyleSheet("QGroupBox { border: 2px solid #666666; border-radius: "
+                        "5px; margin-top: 1ex; padding-top: 10px; } "
+                        "QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; "
+                        "background-color: white; }");
+
+
 
     this->setFixedSize(this->size());
 
@@ -53,11 +59,18 @@ ArxDialog::ArxDialog(QWidget *parent)
     ui->doubleSpinBoxSzum->setRange(0.0, 1.0);
     ui->doubleSpinBoxSzum->setValue(0.01);
 
-    ui->doubleSpinBoxMin->setRange(-1000.0, 0.0);
-    ui->doubleSpinBoxMin->setValue(-10.0);
+    ui->doubleSpinBoxMinU->setRange(-1000.0, 0.0);
+    ui->doubleSpinBoxMinU->setValue(-10.0);
 
-    ui->doubleSpinBoxMax->setRange(0.0, 1000.0);
-    ui->doubleSpinBoxMax->setValue(10.0);
+    ui->doubleSpinBoxMaxU->setRange(0.0, 1000.0);
+    ui->doubleSpinBoxMaxU->setValue(10.0);
+
+    ui->doubleSpinBoxMinY->setRange(-1000.0, 0.0);
+    ui->doubleSpinBoxMinY->setValue(-10.0);
+
+    ui->doubleSpinBoxMaxY->setRange(0.0, 1000.0);
+    ui->doubleSpinBoxMaxY->setValue(10.0);
+
 
     ui->checkBoxOgraniczenie->setChecked(true);
 
@@ -95,15 +108,26 @@ double ArxDialog::noise() const
     return ui->doubleSpinBoxSzum->value();
 }
 
-double ArxDialog::minVal() const
+double ArxDialog::minU() const
 {
-    return ui->doubleSpinBoxMin->value();
+    return ui->doubleSpinBoxMinU->value();
 }
 
-double ArxDialog::maxVal() const
+double ArxDialog::maxU() const
 {
-    return ui->doubleSpinBoxMax->value();
+    return ui->doubleSpinBoxMaxU->value();
 }
+
+double ArxDialog::minY() const
+{
+    return ui->doubleSpinBoxMinY->value();
+}
+
+double ArxDialog::maxY() const
+{
+    return ui->doubleSpinBoxMaxY->value();
+}
+
 
 bool ArxDialog::useLimits() const
 {
@@ -179,27 +203,49 @@ void ArxDialog::ustawZKonfiguracji(const QString &tekstA,
                                    const QString &tekstB,
                                    int opoznienie,
                                    double szum,
-                                   double minVal,
-                                   double maxVal,
+                                   double minU,
+                                   double maxU,
+                                   double minY,
+                                   double maxY,
                                    bool uzywajOgraniczen)
 {
     ui->lineEditA->setText(tekstA);
     ui->lineEditB->setText(tekstB);
     ui->spinBoxOpoznienie->setValue(opoznienie);
     ui->doubleSpinBoxSzum->setValue(szum);
-    ui->doubleSpinBoxMin->setValue(minVal);
-    ui->doubleSpinBoxMax->setValue(maxVal);
-    ui->checkBoxOgraniczenie->setChecked(uzywajOgraniczen);
+
+    ui->doubleSpinBoxMinU->setValue(minU);
+    ui->doubleSpinBoxMaxU->setValue(maxU);
+    ui->doubleSpinBoxMinY->setValue(minY);
+    ui->doubleSpinBoxMaxY->setValue(maxY);
+
+    setOgraniczeniaAktywne(uzywajOgraniczen);
 }
+
 
 void ArxDialog::setTekstA(const QString& t) { ui->lineEditA->setText(t); }
 void ArxDialog::setTekstB(const QString& t) { ui->lineEditB->setText(t); }
 void ArxDialog::setOpoznienie(int k) { ui->spinBoxOpoznienie->setValue(k); }
 void ArxDialog::setSzum(double s) { ui->doubleSpinBoxSzum->setValue(s); }
-void ArxDialog::setMinMax(double min, double max) {
-    ui->doubleSpinBoxMin->setValue(min);
-    ui->doubleSpinBoxMax->setValue(max);
+void ArxDialog::setMinMax(double minU, double maxU, double minY, double maxY)
+{
+    ui->doubleSpinBoxMinU->setValue(minU);
+    ui->doubleSpinBoxMaxU->setValue(maxU);
+    ui->doubleSpinBoxMinY->setValue(minY);
+    ui->doubleSpinBoxMaxY->setValue(maxY);
 }
+
 void ArxDialog::setOgraniczeniaAktywne(bool on) {
     ui->checkBoxOgraniczenie->setChecked(on);
+    ui->doubleSpinBoxMinU->setEnabled(on);
+    ui->doubleSpinBoxMaxU->setEnabled(on);
+    ui->doubleSpinBoxMinY->setEnabled(on);
+    ui->doubleSpinBoxMaxY->setEnabled(on);
+
 }
+
+void ArxDialog::on_checkBoxOgraniczenie_toggled(bool checked)
+{
+    setOgraniczeniaAktywne(checked);
+}
+

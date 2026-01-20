@@ -287,44 +287,11 @@
            </size>
           </property>
           <property name="title">
-           <string>PID</string>
+           <string>Regulator PID</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_3">
-           <property name="leftMargin">
-            <number>2</number>
-           </property>
-           <property name="topMargin">
-            <number>2</number>
-           </property>
-           <property name="rightMargin">
-            <number>2</number>
-           </property>
-           <property name="bottomMargin">
-            <number>2</number>
-           </property>
-           <property name="spacing">
-            <number>2</number>
-           </property>
+          <layout class="QGridLayout" name="gridLayout">
            <item row="0" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout">
-             <property name="spacing">
-              <number>2</number>
-             </property>
-             <property name="sizeConstraint">
-              <enum>QLayout::SetDefaultConstraint</enum>
-             </property>
-             <property name="leftMargin">
-              <number>2</number>
-             </property>
-             <property name="topMargin">
-              <number>2</number>
-             </property>
-             <property name="rightMargin">
-              <number>2</number>
-             </property>
-             <property name="bottomMargin">
-              <number>2</number>
-             </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
              <item>
               <layout class="QVBoxLayout" name="verticalLayout_2">
                <property name="spacing">
@@ -420,59 +387,62 @@
               </layout>
              </item>
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout">
-               <property name="spacing">
-                <number>8</number>
-               </property>
-               <property name="sizeConstraint">
-                <enum>QLayout::SetDefaultConstraint</enum>
-               </property>
-               <property name="leftMargin">
-                <number>8</number>
-               </property>
-               <property name="topMargin">
-                <number>8</number>
-               </property>
-               <property name="rightMargin">
-                <number>8</number>
-               </property>
-               <property name="bottomMargin">
-                <number>8</number>
-               </property>
+              <layout class="QVBoxLayout" name="verticalLayout_9">
                <item>
-                <widget class="QDoubleSpinBox" name="TiSpinBox">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximum">
-                  <double>1000.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.010000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>1.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QDoubleSpinBox" name="TdSpinBox">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximum">
-                  <double>1000.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.010000000000000</double>
-                 </property>
-                </widget>
+                <layout class="QHBoxLayout" name="horizontalLayout">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout">
+                   <item>
+                    <widget class="QDoubleSpinBox" name="TiSpinBox">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="maximum">
+                      <double>1000.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.010000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>1.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QDoubleSpinBox" name="TdSpinBox">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="maximum">
+                      <double>1000.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.010000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="resetTiTdPIDpushButton">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Resetuj</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </item>
                <item>
                 <widget class="QDoubleSpinBox" name="KpSpinBox">
@@ -510,6 +480,9 @@
                  <property name="maximum">
                   <double>0.000000000000000</double>
                  </property>
+                 <property name="singleStep">
+                  <double>0.010000000000000</double>
+                 </property>
                  <property name="value">
                   <double>-10.000000000000000</double>
                  </property>
@@ -525,6 +498,9 @@
                  </property>
                  <property name="maximum">
                   <double>100.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.010000000000000</double>
                  </property>
                  <property name="value">
                   <double>10.000000000000000</double>
@@ -823,7 +799,7 @@
            <property name="spacing">
             <number>2</number>
            </property>
-           <item row="0" column="0">
+           <item row="1" column="0">
             <layout class="QVBoxLayout" name="verticalLayout_10">
              <property name="spacing">
               <number>2</number>

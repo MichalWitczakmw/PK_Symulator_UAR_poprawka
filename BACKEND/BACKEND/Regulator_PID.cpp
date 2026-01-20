@@ -3,7 +3,7 @@
 Regulator_PID::Regulator_PID(double kp, double ti, double td)
     : m_kp(kp), m_ti(ti), m_td(td),
     m_liczCalk(LiczCalk::Zew),
-    m_ogrMin(-1e10), m_ogrMax(1e10),
+    m_ogrMin(-10.0), m_ogrMax(10.0),
     m_sumUchybow(0.0), m_sumCalkiWew(0.0),
     m_uchybPoprzedni(0.0)
 {}

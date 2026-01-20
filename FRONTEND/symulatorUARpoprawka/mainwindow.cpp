@@ -16,6 +16,13 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    this->setStyleSheet("QGroupBox { border: 2px solid #666666; border-radius: "
+                        "5px; margin-top: 1ex; padding-top: 10px; } "
+                        "QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; "
+                        "background-color: white; }");
+
+    //this->setStyleSheet("QMainWindow { background-color: #d0d0d0; }""QWidget { background-color: #d0d0d0; }");
+
     // filtrowanie Entera na spinboxach / comboboxach
     ui->interwalSpinBox->installEventFilter(this);
     ui->czasTrwaniadoubleSpinBox->installEventFilter(this);
@@ -23,7 +30,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->ogrDolneSpinBox->installEventFilter(this);
     ui->ogrGornedoubleSpinBox->installEventFilter(this);
     ui->wzmacniaczSpinBox->installEventFilter(this);
-    ui->typComboBox->installEventFilter(this);
     ui->OkresdoubleSpinBox->installEventFilter(this);
     ui->WypelnieniespinBox->installEventFilter(this);
     ui->StalaSkladowadoubleSpinBox_3->installEventFilter(this);
@@ -31,6 +37,23 @@ MainWindow::MainWindow(QWidget *parent)
     ui->TiSpinBox->installEventFilter(this);
     ui->TdSpinBox->installEventFilter(this);
     ui->KpSpinBox->installEventFilter(this);
+
+    connect(ui->typComboBox,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this](int idx){
+                double A   = ui->wzmacniaczSpinBox->value();
+                double TRZ = ui->OkresdoubleSpinBox->value();
+                double p   = ui->WypelnieniespinBox->value();
+                double S   = ui->StalaSkladowadoubleSpinBox_3->value();
+
+                m_symulator.ustawGenerator(A, TRZ, p, S);
+
+                if (idx == 0) {
+                    m_symulator.ustawGeneratorSinus(A, TRZ, S);
+                } else {
+                    m_symulator.ustawGeneratorProstokat(A, TRZ, p, S);
+                }
+            });
 
     connect(ui->CzyCalkacheckBox, &QCheckBox::toggled,
             this, [this](bool zaznaczony){
@@ -90,10 +113,15 @@ void MainWindow::initPlots()
         p->axisRect()->setupFullAxesBox();
         p->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
         p->legend->setVisible(false);
+
+        // tło takie jak MainWindow
+        //QColor bg("#d0d0d0");
+        //p->setBackground(bg);
+        //p->axisRect()->setBackground(bg);
     };
 
     // ===== PID: P/I/D =====
-    setupPlot(ui->WykresPID, "Skladowe PID");
+    setupPlot(ui->WykresPID, "");
     ui->WykresPID->addGraph(); // P
     ui->WykresPID->graph(0)->setName("Skladowa P");
     ui->WykresPID->graph(0)->setPen(QPen(QColor(255, 0, 0), 2));
@@ -102,7 +130,7 @@ void MainWindow::initPlots()
 
     ui->WykresPID->addGraph(); // I
     ui->WykresPID->graph(1)->setName("Skladowa I");
-    ui->WykresPID->graph(1)->setPen(QPen(QColor(255, 255, 0), 2));
+    ui->WykresPID->graph(1)->setPen(QPen(QColor(128, 0, 255), 2));
     ui->WykresPID->graph(1)->setLineStyle(QCPGraph::lsLine);
     ui->WykresPID->graph(1)->setScatterStyle(QCPScatterStyle::ssNone);
 
@@ -120,6 +148,7 @@ void MainWindow::initPlots()
 
         QFont f("Sans Serif", 9);
 
+
         auto mk = [&](const QString &txt, const QColor &col)->QCPTextElement* {
             QCPTextElement *e = new QCPTextElement(ui->WykresPID, txt, f);
             e->setTextColor(col);
@@ -128,12 +157,12 @@ void MainWindow::initPlots()
         };
 
         row->addElement(0, 0, mk("Skladowa P", QColor(255, 0, 0)));
-        row->addElement(0, 1, mk("   Skladowa I", QColor(255, 255, 0)));
-        row->addElement(0, 2, mk("   Skladowa D", QColor(0, 0, 255)));
+        row->addElement(0, 1, mk("Skladowa I", QColor(128, 0, 255)));
+        row->addElement(0, 2, mk("Skladowa D", QColor(0, 0, 255)));
     }
 
     // ===== Zadana + regulowana (w + y) =====
-    setupPlot(ui->WykresZadanaRegulowana, "Wartosc zadana / regulowana");
+    setupPlot(ui->WykresZadanaRegulowana, "");
     ui->WykresZadanaRegulowana->addGraph(); // w
     ui->WykresZadanaRegulowana->graph(0)->setName("Wartosc zadana w");
     ui->WykresZadanaRegulowana->graph(0)->setPen(QPen(QColor(255, 165, 0), 2));
@@ -142,7 +171,7 @@ void MainWindow::initPlots()
 
     ui->WykresZadanaRegulowana->addGraph(); // y
     ui->WykresZadanaRegulowana->graph(1)->setName("Wartosc regulowana y");
-    ui->WykresZadanaRegulowana->graph(1)->setPen(QPen(QColor(0, 255, 0), 2));
+    ui->WykresZadanaRegulowana->graph(1)->setPen(QPen(QColor(0, 160, 0), 2));
     ui->WykresZadanaRegulowana->graph(1)->setLineStyle(QCPGraph::lsLine);
     ui->WykresZadanaRegulowana->graph(1)->setScatterStyle(QCPScatterStyle::ssNone);
 
@@ -160,7 +189,7 @@ void MainWindow::initPlots()
 
         QCPTextElement *yTxt = new QCPTextElement(
             ui->WykresZadanaRegulowana, "   Wartosc regulowana y", f);
-        yTxt->setTextColor(QColor(0, 255, 0));
+        yTxt->setTextColor(QColor(0, 160, 0));
         yTxt->setTextFlags(Qt::AlignLeft | Qt::AlignVCenter);
 
         row->addElement(0, 0, wTxt);
@@ -168,7 +197,7 @@ void MainWindow::initPlots()
     }
 
     // ===== Uchyb e =====
-    setupPlot(ui->WykresUchyb, "Uchyb e");
+    setupPlot(ui->WykresUchyb, "");
     ui->WykresUchyb->addGraph();
     ui->WykresUchyb->graph(0)->setName("Uchyb e");
     ui->WykresUchyb->graph(0)->setPen(QPen(QColor(0, 0, 255), 2));
@@ -187,7 +216,7 @@ void MainWindow::initPlots()
     }
 
     // ===== Sterowanie u =====
-    setupPlot(ui->WykresSterowanie, "Sterowanie u");
+    setupPlot(ui->WykresSterowanie, "");
     ui->WykresSterowanie->addGraph();
     ui->WykresSterowanie->graph(0)->setName("Sterowanie u");
     ui->WykresSterowanie->graph(0)->setPen(QPen(QColor(255, 0, 0), 2));
@@ -274,8 +303,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
             else if (obj == ui->wzmacniaczSpinBox ||
                      obj == ui->OkresdoubleSpinBox ||
                      obj == ui->WypelnieniespinBox ||
-                     obj == ui->StalaSkladowadoubleSpinBox_3 ||
-                     obj == ui->typComboBox)
+                     obj == ui->StalaSkladowadoubleSpinBox_3)
             {
                 double A   = ui->wzmacniaczSpinBox->value();
                 double TRZ = ui->OkresdoubleSpinBox->value();
@@ -413,6 +441,8 @@ void MainWindow::updateChart(double czas, double)
     trimData(ui->WykresPID->graph(0));
     trimData(ui->WykresPID->graph(1));
     trimData(ui->WykresPID->graph(2));
+
+    ui->WykresPID->yAxis->rescale(true);
     ui->WykresPID->xAxis->setRange(left, right);
     ui->WykresPID->replot();
 
@@ -421,18 +451,24 @@ void MainWindow::updateChart(double czas, double)
     ui->WykresZadanaRegulowana->graph(1)->addData(t, y);
     trimData(ui->WykresZadanaRegulowana->graph(0));
     trimData(ui->WykresZadanaRegulowana->graph(1));
+
+    ui->WykresZadanaRegulowana->yAxis->rescale(true);
     ui->WykresZadanaRegulowana->xAxis->setRange(left, right);
     ui->WykresZadanaRegulowana->replot();
 
     // e
     ui->WykresUchyb->graph(0)->addData(t, e);
     trimData(ui->WykresUchyb->graph(0));
+
+    ui->WykresUchyb->yAxis->rescale(true);
     ui->WykresUchyb->xAxis->setRange(left, right);
     ui->WykresUchyb->replot();
 
     // u
     ui->WykresSterowanie->graph(0)->addData(t, u);
     trimData(ui->WykresSterowanie->graph(0));
+
+    ui->WykresSterowanie->yAxis->rescale(true);
     ui->WykresSterowanie->xAxis->setRange(left, right);
     ui->WykresSterowanie->replot();
 }
@@ -448,8 +484,10 @@ void MainWindow::on_ARXpushButton_clicked()
     m_arxDialog.ustawZKonfiguracji(cfg.tekstA, cfg.tekstB,
                                    cfg.opoznienie,
                                    cfg.szum,
-                                   cfg.minVal,
-                                   cfg.maxVal,
+                                   cfg.minU,
+                                   cfg.maxU,
+                                   cfg.minY,
+                                   cfg.maxY,
                                    cfg.uzywajOgraniczen);
 
     if (m_arxDialog.exec() == QDialog::Accepted) {
@@ -458,13 +496,16 @@ void MainWindow::on_ARXpushButton_clicked()
         QString strB      = m_arxDialog.coeffB();
         int    delay      = m_arxDialog.delay();
         double noise      = m_arxDialog.noise();
-        double minVal     = m_arxDialog.minVal();
-        double maxVal     = m_arxDialog.maxVal();
+        double minU       = m_arxDialog.minU();
+        double maxU       = m_arxDialog.maxU();
+        double minY       = m_arxDialog.minY();
+        double maxY       = m_arxDialog.maxY();
         bool   useLimits  = m_arxDialog.useLimits();
 
         auto blad = m_symulator.konfigurujARX(strA, strB,
                                               delay, noise,
-                                              minVal, maxVal,
+                                              minU, maxU,
+                                              minY, maxY,
                                               useLimits);
         if (blad != SymulatorUAR::BladARX::BrakBledu) {
             QString msg;
@@ -521,6 +562,12 @@ void MainWindow::odswiezKontrolkiPoWczytaniu()
         reg.getLiczCalk() == Regulator_PID::LiczCalk::Wew);
 
     const auto& gen = sim.getGenerator();
+
+    ui->wzmacniaczSpinBox->setValue(m_symulator.getAmplituda());
+    ui->OkresdoubleSpinBox->setValue(m_symulator.getOkresTRZ());
+    ui->WypelnieniespinBox->setValue(m_symulator.getWypelnienieProc());
+    ui->StalaSkladowadoubleSpinBox_3->setValue(m_symulator.getSkladowaStala());
+
     ui->wzmacniaczSpinBox->setValue(gen.getAmplituda());
     if (gen.getTyp() == TypSygnalu::Sinus) {
         ui->typComboBox->setCurrentText("Sinusoidalny");
@@ -533,9 +580,16 @@ void MainWindow::odswiezKontrolkiPoWczytaniu()
     m_arxDialog.setTekstB(cfg.tekstB);
     m_arxDialog.setOpoznienie(cfg.opoznienie);
     m_arxDialog.setSzum(cfg.szum);
-    m_arxDialog.setMinMax(cfg.minVal, cfg.maxVal);
+    m_arxDialog.setMinMax(cfg.minU, cfg.maxU, cfg.minY, cfg.maxY);
     m_arxDialog.setOgraniczeniaAktywne(cfg.uzywajOgraniczen);
+
 
     applyTimeWindowToPlots();
 
 }
+
+void MainWindow::on_resetTiTdPIDpushButton_clicked()
+{
+    m_symulator.resetujPamiecRegulatora();
+}
+

@@ -353,8 +353,10 @@ SymulatorUAR::BladARX SymulatorUAR::konfigurujARX(const QString &tekstA,
                                                   const QString &tekstB,
                                                   int opoznienie,
                                                   double szum,
-                                                  double minVal,
-                                                  double maxVal,
+                                                  double minU,
+                                                  double maxU,
+                                                  double minY,
+                                                  double maxY,
                                                   bool uzywajOgraniczen)
 {
     bool okA = false, okB = false;
@@ -379,8 +381,8 @@ SymulatorUAR::BladARX SymulatorUAR::konfigurujARX(const QString &tekstA,
     model.setB(B);
     model.setopoznienieTransport(opoznienie);
     model.setOdchylenieZaklocen(szum);
-    model.setOgrSterowania(minVal, maxVal, uzywajOgraniczen);
-    model.setOgrRegulowania(minVal, maxVal, uzywajOgraniczen);
+    model.setOgrSterowania(minU, maxU, uzywajOgraniczen);
+    model.setOgrRegulowania(minY, maxY, uzywajOgraniczen);
 
     return BladARX::BrakBledu;
 }
@@ -402,8 +404,10 @@ SymulatorUAR::KonfiguracjaARX SymulatorUAR::getKonfiguracjaARX() const
     cfg.tekstB = wektorNaTekst(model.getB());
     cfg.opoznienie = model.getOpoznienieTransport();
     cfg.szum = model.getOdchylenieZaklocen();
-    cfg.minVal = model.getMinY();
-    cfg.maxVal = model.getMaxY();
+    cfg.minU = model.getMinU();
+    cfg.maxU = model.getMaxU();
+    cfg.minY = model.getMinY();
+    cfg.maxY = model.getMaxY();
     cfg.uzywajOgraniczen = model.getJestOgrSterowaniaAktywne()
                            && model.getJestgrRegulowaniaAktywne();
 
