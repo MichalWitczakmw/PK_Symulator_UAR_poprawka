@@ -22,6 +22,15 @@ SymulatorUAR::SymulatorUAR(QObject* parent)
     ustawGeneratorSinus(1.0,10,0);
 
     m_czasStartu = std::chrono::steady_clock::now();
+
+    m_historiaWartoscZadana.reserve(m_maxHistoriaPunktow);
+    m_historiaWartoscRegulowana.reserve(m_maxHistoriaPunktow);
+    m_historiaUchyb.reserve(m_maxHistoriaPunktow);
+    m_historiaSterowanie.reserve(m_maxHistoriaPunktow);
+    m_historiaSkladowaP.reserve(m_maxHistoriaPunktow);
+    m_historiaSkladowaI.reserve(m_maxHistoriaPunktow);
+    m_historiaSkladowaD.reserve(m_maxHistoriaPunktow);
+    m_historiaCzas.reserve(m_maxHistoriaPunktow);
 }
 
 SymulatorUAR::~SymulatorUAR()
@@ -198,6 +207,8 @@ void SymulatorUAR::ustawOknoObserwacji(double sekundy)
 
     double iloscProbek = sekundy * (1000.0 / m_interwalMs);
     m_maxHistoriaPunktow = static_cast<int>(iloscProbek);
+    m_czasTrwaniaS=sekundy;
+    //wyczyscHistorie();
 
     if (m_maxHistoriaPunktow < 1)
         m_maxHistoriaPunktow = 1;

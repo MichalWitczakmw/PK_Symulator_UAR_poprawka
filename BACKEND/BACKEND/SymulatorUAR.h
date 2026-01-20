@@ -157,7 +157,7 @@ private:
     QVector<double> m_historiaSkladowaD;
     QVector<double> m_historiaCzas;
 
-    int m_maxHistoriaPunktow = 50000;    // ~10s przy 200ms
+    int m_maxHistoriaPunktow = 5000;    // ~10s przy 200ms
     std::chrono::steady_clock::time_point m_czasStartu;
 
     // === POMOCNICZE ===

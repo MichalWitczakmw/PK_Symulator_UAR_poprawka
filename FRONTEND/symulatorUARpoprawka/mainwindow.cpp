@@ -187,7 +187,7 @@ void MainWindow::initPlots()
 // Stała „skala czasu trwania” na osi X (0..window)
 void MainWindow::applyTimeWindowToPlots()
 {
-    double window = ui->czasTrwaniadoubleSpinBox->value();
+    double window = m_symulator.getCzasTrwaniaS();
     if (window <= 0) window = 1.0;
 
     ui->WykresPID->xAxis->setRange(0, window);
@@ -342,13 +342,13 @@ void MainWindow::updateChart(double czas, double)
 
     // czas symulacji po uwzględnieniu pauz
     double baseTime = czas - m_timeOffset;
-
-    // zapamiętaj pierwszy czas i „przesuń” go do zera
+    //zapamiętaj pierwszy czas i „przesuń” go do zera
     if (!m_haveFirstTime) {
         m_firstTime = baseTime;
         m_haveFirstTime = true;
     }
     double t = baseTime - m_firstTime;
+    //double t = czas;
 
     double w = m_symulator.getWartoscZadana();
     double y = m_symulator.getWartoscRegulowana();
@@ -358,31 +358,56 @@ void MainWindow::updateChart(double czas, double)
     double i = m_symulator.getSkladowaI();
     double d = m_symulator.getSkladowaD();
 
-    const int MAX_POINTS = 800;
-    double window = ui->czasTrwaniadoubleSpinBox->value();
+    const int MAX_POINTS = 5000;
+    double window = m_symulator.getCzasTrwaniaS();
     if (window <= 0) window = 1.0;
 
     double left  = (t < window) ? 0.0 : (t - window);
     double right = left + window;
+    // dopóki t < window – pokazuj 0..window (wypełnianie od lewej)
+    //double left, right;
+    //if (t < window) {
+    //    left  = 0.0;
+    ///    right = window;
+    //} else {
+    //    // po osiągnięciu pełnego okna – przesuwaj
+    //    left  = t - window;
+    //    right = t;
+    //}
 
-    auto trimData = [MAX_POINTS](QCPGraph *g)
+    auto trimData = [MAX_POINTS](QCPGraph *g,double minTime)
     {
         if (!g) return;
         QCPDataContainer<QCPGraphData> *container = g->data().data();
+        //while (!container->isEmpty() && container->constBegin()->key < minTime)
+        //{
+        //    container->remove(container->constBegin()->key);
+        //}
+        //while (container->size() > MAX_POINTS)
+        //    container->remove(container->constBegin()->key);
         while (container->size() > MAX_POINTS)
         {
-            double firstKey = container->constBegin()->key;
-            container->remove(firstKey);
+            //double firstKey = container->constBegin()->key;
+            //container->remove(firstKey);
+            container->remove(container->constBegin()->key);
         }
     };
+
+    //trim przed
+
+
+
 
     // PID
     ui->WykresPID->graph(0)->addData(t, p);
     ui->WykresPID->graph(1)->addData(t, i);
     ui->WykresPID->graph(2)->addData(t, d);
-    trimData(ui->WykresPID->graph(0));
-    trimData(ui->WykresPID->graph(1));
-    trimData(ui->WykresPID->graph(2));
+    //trimData(ui->WykresPID->graph(0));
+    //trimData(ui->WykresPID->graph(1));
+    //trimData(ui->WykresPID->graph(2));
+    trimData(ui->WykresPID->graph(0),left);
+    trimData(ui->WykresPID->graph(1),left);
+    trimData(ui->WykresPID->graph(2),left);
 
     ui->WykresPID->yAxis->rescale(true);
     double lower = qMin(-2.0, ui->WykresPID->yAxis->range().lower);
@@ -392,10 +417,13 @@ void MainWindow::updateChart(double czas, double)
     ui->WykresPID->replot();
 
     // w + y
+
     ui->WykresZadanaRegulowana->graph(0)->addData(t, w);
     ui->WykresZadanaRegulowana->graph(1)->addData(t, y);
-    trimData(ui->WykresZadanaRegulowana->graph(0));
-    trimData(ui->WykresZadanaRegulowana->graph(1));
+    //trimData(ui->WykresZadanaRegulowana->graph(0));
+    //trimData(ui->WykresZadanaRegulowana->graph(1));
+    trimData(ui->WykresZadanaRegulowana->graph(0),left);
+    trimData(ui->WykresZadanaRegulowana->graph(1),left);
 
     ui->WykresZadanaRegulowana->yAxis->rescale(true);
     ui->WykresZadanaRegulowana->yAxis->setRange(lower, upper);
@@ -403,8 +431,10 @@ void MainWindow::updateChart(double czas, double)
     ui->WykresZadanaRegulowana->replot();
 
     // e
+
     ui->WykresUchyb->graph(0)->addData(t, e);
-    trimData(ui->WykresUchyb->graph(0));
+    //trimData(ui->WykresUchyb->graph(0));
+    trimData(ui->WykresUchyb->graph(0),left);
 
     ui->WykresUchyb->yAxis->rescale(true);
     ui->WykresUchyb->yAxis->setRange(lower, upper);
@@ -412,8 +442,10 @@ void MainWindow::updateChart(double czas, double)
     ui->WykresUchyb->replot();
 
     // u
+
     ui->WykresSterowanie->graph(0)->addData(t, u);
-    trimData(ui->WykresSterowanie->graph(0));
+    //trimData(ui->WykresSterowanie->graph(0));
+    trimData(ui->WykresSterowanie->graph(0),left);
 
     ui->WykresSterowanie->yAxis->rescale(true);
     ui->WykresSterowanie->yAxis->setRange(lower, upper);

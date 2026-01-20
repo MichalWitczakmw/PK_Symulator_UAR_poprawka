@@ -929,9 +929,9 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>&lt;span style='color:#ff0000;'&gt;P&lt;/span&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;
-&lt;span style='color:#008000;'&gt;I&lt;/span&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;
-&lt;span style='color:#0000ff;'&gt;D&lt;/span&gt;</string>
+           <string>&lt;span style='color:#ff0000;'&gt;PROPORCJONALNY&lt;/span&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+&lt;span style='color:#008000;'&gt;CAŁKUJĄCY&lt;/span&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+&lt;span style='color:#0000ff;'&gt;RÓŻNICZKUJĄCY&lt;/span&gt;</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
