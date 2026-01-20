@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     this->setStyleSheet("QMainWindow { background-color: #d0d0d0; }""QWidget { background-color: #d0d0d0; }"
-        "QGroupBox { border: 2px solid #2f4f4f; border-radius: "
+                        "QGroupBox { border: 2px solid #2f4f4f; border-radius: "
                         "5px; margin-top: 1ex; padding-top: 10px; } "
                         "QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; "
                         "background-color: #d0d0d0; }");
@@ -112,7 +112,7 @@ void MainWindow::initPlots()
         p->clearItems();
         p->xAxis->setLabel("t [s]");
         p->yAxis->setLabel(yLabel);
-        p->yAxis->setRange(-3, 3);
+        p->yAxis->setRange(-2, 2);
         p->axisRect()->setupFullAxesBox();
 
         // całkowite wyłączenie interakcji (brak zoomu, dragowania, zaznaczania, scrolla)
@@ -385,6 +385,9 @@ void MainWindow::updateChart(double czas, double)
     trimData(ui->WykresPID->graph(2));
 
     ui->WykresPID->yAxis->rescale(true);
+    double lower = qMin(-2.0, ui->WykresPID->yAxis->range().lower);
+    double upper = qMax( 2.0, ui->WykresPID->yAxis->range().upper);
+    ui->WykresPID->yAxis->setRange(lower, upper);
     ui->WykresPID->xAxis->setRange(left, right);
     ui->WykresPID->replot();
 
@@ -395,6 +398,7 @@ void MainWindow::updateChart(double czas, double)
     trimData(ui->WykresZadanaRegulowana->graph(1));
 
     ui->WykresZadanaRegulowana->yAxis->rescale(true);
+    ui->WykresZadanaRegulowana->yAxis->setRange(lower, upper);
     ui->WykresZadanaRegulowana->xAxis->setRange(left, right);
     ui->WykresZadanaRegulowana->replot();
 
@@ -403,6 +407,7 @@ void MainWindow::updateChart(double czas, double)
     trimData(ui->WykresUchyb->graph(0));
 
     ui->WykresUchyb->yAxis->rescale(true);
+    ui->WykresUchyb->yAxis->setRange(lower, upper);
     ui->WykresUchyb->xAxis->setRange(left, right);
     ui->WykresUchyb->replot();
 
@@ -411,6 +416,7 @@ void MainWindow::updateChart(double czas, double)
     trimData(ui->WykresSterowanie->graph(0));
 
     ui->WykresSterowanie->yAxis->rescale(true);
+    ui->WykresSterowanie->yAxis->setRange(lower, upper);
     ui->WykresSterowanie->xAxis->setRange(left, right);
     ui->WykresSterowanie->replot();
 }

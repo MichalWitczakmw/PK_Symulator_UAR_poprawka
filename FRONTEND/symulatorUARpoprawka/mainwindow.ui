@@ -911,7 +911,14 @@
          </widget>
         </item>
         <item>
-         <widget class="QCustomPlot" name="WykresZadanaRegulowana" native="true"/>
+         <widget class="QCustomPlot" name="WykresZadanaRegulowana" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_14">
@@ -950,7 +957,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>STEROWANIE</string>
+           <string>&lt;span style='color:#ff0000;'&gt;STEROWANIE&lt;&gt;</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -972,7 +979,7 @@
            <enum>Qt::LeftToRight</enum>
           </property>
           <property name="text">
-           <string>UCHYB</string>
+           <string>&lt;span style='color:#0000ff;'&gt;UCHYB&lt;/span&gt;</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
