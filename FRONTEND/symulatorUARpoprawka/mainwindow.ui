@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
-    <height>917</height>
+    <width>1202</width>
+    <height>886</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -893,16 +893,94 @@
          <number>2</number>
         </property>
         <item>
-         <widget class="QCustomPlot" name="WykresSterowanie" native="true"/>
-        </item>
-        <item>
-         <widget class="QCustomPlot" name="WykresUchyb" native="true"/>
-        </item>
-        <item>
-         <widget class="QCustomPlot" name="WykresPID" native="true"/>
+         <widget class="QLabel" name="label_15">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>&lt;span style='color:#ffa500;'&gt;WARTOŚĆ ZADANA&lt;/span&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+&lt;span style='color:#00a000;'&gt;WARTOŚĆ REGULOWANA&lt;/span&gt;</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QCustomPlot" name="WykresZadanaRegulowana" native="true"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_14">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>&lt;span style='color:#ff0000;'&gt;P&lt;/span&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+&lt;span style='color:#008000;'&gt;I&lt;/span&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+&lt;span style='color:#0000ff;'&gt;D&lt;/span&gt;</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCustomPlot" name="WykresPID" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelSterowanie">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>STEROWANIE</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCustomPlot" name="WykresSterowanie" native="true"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelUchyba">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="text">
+           <string>UCHYB</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCustomPlot" name="WykresUchyb" native="true"/>
         </item>
        </layout>
       </item>
@@ -915,7 +993,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1200</width>
+     <width>1202</width>
      <height>21</height>
     </rect>
    </property>

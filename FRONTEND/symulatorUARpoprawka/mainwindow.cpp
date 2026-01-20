@@ -16,10 +16,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    this->setStyleSheet("QGroupBox { border: 2px solid #666666; border-radius: "
+
+    this->setStyleSheet("QMainWindow { background-color: #d0d0d0; }""QWidget { background-color: #d0d0d0; }"
+        "QGroupBox { border: 2px solid #2f4f4f; border-radius: "
                         "5px; margin-top: 1ex; padding-top: 10px; } "
                         "QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; "
-                        "background-color: white; }");
+                        "background-color: #d0d0d0; }");
 
     //this->setStyleSheet("QMainWindow { background-color: #d0d0d0; }""QWidget { background-color: #d0d0d0; }");
 
@@ -107,17 +109,20 @@ void MainWindow::initPlots()
     auto setupPlot = [](QCustomPlot *p, const QString &yLabel)
     {
         p->clearGraphs();
+        p->clearItems();
         p->xAxis->setLabel("t [s]");
         p->yAxis->setLabel(yLabel);
         p->yAxis->setRange(-3, 3);
         p->axisRect()->setupFullAxesBox();
-        p->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+
+        // całkowite wyłączenie interakcji (brak zoomu, dragowania, zaznaczania, scrolla)
+        p->setInteractions(QCP::Interactions());   // żadnych flag[web:183]
+
         p->legend->setVisible(false);
 
-        // tło takie jak MainWindow
-        //QColor bg("#d0d0d0");
-        //p->setBackground(bg);
-        //p->axisRect()->setBackground(bg);
+        QColor bg("#d0d0d0");              // ten sam co w MainWindow
+        p->setBackground(bg);
+        p->axisRect()->setBackground(bg);
     };
 
     // ===== PID: P/I/D =====
@@ -130,7 +135,7 @@ void MainWindow::initPlots()
 
     ui->WykresPID->addGraph(); // I
     ui->WykresPID->graph(1)->setName("Skladowa I");
-    ui->WykresPID->graph(1)->setPen(QPen(QColor(128, 0, 255), 2));
+    ui->WykresPID->graph(1)->setPen(QPen(QColor(0, 128, 0), 2));
     ui->WykresPID->graph(1)->setLineStyle(QCPGraph::lsLine);
     ui->WykresPID->graph(1)->setScatterStyle(QCPScatterStyle::ssNone);
 
@@ -139,27 +144,6 @@ void MainWindow::initPlots()
     ui->WykresPID->graph(2)->setPen(QPen(QColor(0, 0, 255), 2));
     ui->WykresPID->graph(2)->setLineStyle(QCPGraph::lsLine);
     ui->WykresPID->graph(2)->setScatterStyle(QCPScatterStyle::ssNone);
-
-    // wiersz nad wykresem z trzema kolorowymi napisami
-    ui->WykresPID->plotLayout()->insertRow(0);
-    {
-        QCPLayoutGrid *row = new QCPLayoutGrid;
-        ui->WykresPID->plotLayout()->addElement(0, 0, row);
-
-        QFont f("Sans Serif", 9);
-
-
-        auto mk = [&](const QString &txt, const QColor &col)->QCPTextElement* {
-            QCPTextElement *e = new QCPTextElement(ui->WykresPID, txt, f);
-            e->setTextColor(col);
-            e->setTextFlags(Qt::AlignLeft | Qt::AlignVCenter);
-            return e;
-        };
-
-        row->addElement(0, 0, mk("Skladowa P", QColor(255, 0, 0)));
-        row->addElement(0, 1, mk("Skladowa I", QColor(128, 0, 255)));
-        row->addElement(0, 2, mk("Skladowa D", QColor(0, 0, 255)));
-    }
 
     // ===== Zadana + regulowana (w + y) =====
     setupPlot(ui->WykresZadanaRegulowana, "");
@@ -175,27 +159,6 @@ void MainWindow::initPlots()
     ui->WykresZadanaRegulowana->graph(1)->setLineStyle(QCPGraph::lsLine);
     ui->WykresZadanaRegulowana->graph(1)->setScatterStyle(QCPScatterStyle::ssNone);
 
-    ui->WykresZadanaRegulowana->plotLayout()->insertRow(0);
-    {
-        QCPLayoutGrid *row = new QCPLayoutGrid;
-        ui->WykresZadanaRegulowana->plotLayout()->addElement(0, 0, row);
-
-        QFont f("Sans Serif", 9);
-
-        QCPTextElement *wTxt = new QCPTextElement(
-            ui->WykresZadanaRegulowana, "Wartosc zadana w", f);
-        wTxt->setTextColor(QColor(255, 165, 0));
-        wTxt->setTextFlags(Qt::AlignLeft | Qt::AlignVCenter);
-
-        QCPTextElement *yTxt = new QCPTextElement(
-            ui->WykresZadanaRegulowana, "   Wartosc regulowana y", f);
-        yTxt->setTextColor(QColor(0, 160, 0));
-        yTxt->setTextFlags(Qt::AlignLeft | Qt::AlignVCenter);
-
-        row->addElement(0, 0, wTxt);
-        row->addElement(0, 1, yTxt);
-    }
-
     // ===== Uchyb e =====
     setupPlot(ui->WykresUchyb, "");
     ui->WykresUchyb->addGraph();
@@ -204,16 +167,6 @@ void MainWindow::initPlots()
     ui->WykresUchyb->graph(0)->setLineStyle(QCPGraph::lsLine);
     ui->WykresUchyb->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->WykresUchyb->yAxis->setLabelColor(QColor(0, 0, 255));
-
-    ui->WykresUchyb->plotLayout()->insertRow(0);
-    {
-        QFont f("Sans Serif", 9);
-        QCPTextElement *eTxt = new QCPTextElement(
-            ui->WykresUchyb, "Uchyb e", f);
-        eTxt->setTextColor(QColor(0, 0, 255));
-        eTxt->setTextFlags(Qt::AlignLeft | Qt::AlignVCenter);
-        ui->WykresUchyb->plotLayout()->addElement(0, 0, eTxt);
-    }
 
     // ===== Sterowanie u =====
     setupPlot(ui->WykresSterowanie, "");
@@ -224,22 +177,11 @@ void MainWindow::initPlots()
     ui->WykresSterowanie->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->WykresSterowanie->yAxis->setLabelColor(QColor(255, 0, 0));
 
-    ui->WykresSterowanie->plotLayout()->insertRow(0);
-    {
-        QFont f("Sans Serif", 9);
-        QCPTextElement *uTxt = new QCPTextElement(
-            ui->WykresSterowanie, "Sterowanie u", f);
-        uTxt->setTextColor(QColor(255, 0, 0));
-        uTxt->setTextFlags(Qt::AlignLeft | Qt::AlignVCenter);
-        ui->WykresSterowanie->plotLayout()->addElement(0, 0, uTxt);
-    }
-
     ui->WykresPID->replot();
     ui->WykresZadanaRegulowana->replot();
     ui->WykresUchyb->replot();
     ui->WykresSterowanie->replot();
 }
-
 
 
 // Stała „skala czasu trwania” na osi X (0..window)
