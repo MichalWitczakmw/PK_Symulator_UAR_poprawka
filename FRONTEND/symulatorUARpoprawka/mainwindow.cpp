@@ -270,10 +270,10 @@ void MainWindow::on_StartPB_clicked()
 {
     int interwal = ui->interwalSpinBox->value();
 
-    if (m_paused) {
+    if (m_czyWstrzymanie) {
         double teraz = m_symulator.getCzasSymulacji();
-        m_timeOffset += (teraz - m_pauseStart);
-        m_paused = false;
+        m_przesuniecieCzasu += (teraz - m_czasStartPauzy);
+        m_czyWstrzymanie = false;
     }
 
     m_symulator.uruchom(interwal);
@@ -291,8 +291,8 @@ void MainWindow::on_StopPB_clicked()
     ui->StopPB->setEnabled(false);
     ui->ResetPB->setEnabled(true);
 
-    m_paused = true;
-    m_pauseStart = m_symulator.getCzasSymulacji();
+    m_czyWstrzymanie = true;
+    m_czasStartPauzy = m_symulator.getCzasSymulacji();
 }
 
 void MainWindow::on_ResetPB_clicked()
@@ -304,11 +304,11 @@ void MainWindow::on_ResetPB_clicked()
     ui->ResetPB->setEnabled(true);
 
     // reset czasu
-    m_timeOffset    = 0.0;
-    m_paused        = false;
-    m_pauseStart    = 0.0;
-    m_firstTime     = 0.0;
-    m_haveFirstTime = false;
+    m_przesuniecieCzasu    = 0.0;
+    m_czyWstrzymanie        = false;
+    m_czasStartPauzy   = 0.0;
+    m_czasPierwszy     = 0.0;
+    m_mamyCzasPierwszy = false;
 
     auto wyczyscWykres = [](QCustomPlot *p){
         if (!p) return;
@@ -375,12 +375,12 @@ void MainWindow::aktualizujWykresy(double czas, double)
         return;
 
     // czas symulacji po uwzględnieniu pauz
-    double czasBazowy = czas - m_timeOffset;
-    if (!m_haveFirstTime) {
-        m_firstTime = czasBazowy;
-        m_haveFirstTime = true;
+    double czasBazowy = czas - m_przesuniecieCzasu;
+    if (!m_mamyCzasPierwszy) {
+        m_czasPierwszy = czasBazowy;
+        m_mamyCzasPierwszy = true;
     }
-    double t = czasBazowy - m_firstTime;
+    double t = czasBazowy - m_czasPierwszy;
 
     double w = m_symulator.getWartoscZadana();
     double y = m_symulator.getWartoscRegulowana();

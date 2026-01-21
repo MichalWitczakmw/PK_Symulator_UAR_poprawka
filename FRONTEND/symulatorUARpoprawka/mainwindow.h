@@ -47,13 +47,13 @@ private:
     void odswiezKontrolkiPoWczytaniu();
 
     // obsługa osi czasu (wycinanie pauz)
-    double m_timeOffset    = 0.0;  // zsumowana długość pauz
-    bool   m_paused        = false; // czy jesteśmy po STOP
-    double m_pauseStart    = 0.0;   // czas symulacji w momencie STOP
+    double m_przesuniecieCzasu = 0.0;  // zsumowana długość pauz
+    bool   m_czyWstrzymanie     = false; // czy jesteśmy po STOP
+    double m_czasStartPauzy    = 0.0;   // czas symulacji w momencie STOP
 
     // „przyklejenie” pierwszego punktu wykresu do t = 0
-    double m_firstTime     = 0.0;   // czas pierwszego punktu (po offsetach)
-    bool   m_haveFirstTime = false;
+    double m_czasPierwszy      = 0.0;   // czas pierwszego punktu (po offsetach)
+    bool   m_mamyCzasPierwszy  = false;
 
     // inicjalizacja i konfiguracja wykresów
     void inicjalizujWykresy();
