@@ -8,10 +8,31 @@ ArxDialog::ArxDialog(QWidget *parent)
     , ui(new Ui::ArxDialog)
 {
     ui->setupUi(this);
-    this->setStyleSheet("QGroupBox { border: 2px solid #666666; border-radius: "
-                        "5px; margin-top: 1ex; padding-top: 10px; } "
-                        "QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; "
-                        "background-color: white; }");
+    this->setStyleSheet(
+        "QDialog { "
+        "  background-color: #d0d0d0; "
+        "} "
+        "QGroupBox { "
+        "  border: 2px solid #2f4f4f; "
+        "  border-radius: 5px; "
+        "  margin-top: 1ex; "
+        "  padding-top: 10px; "
+        "} "
+        "QGroupBox::title { "
+        "  subcontrol-origin: margin; "
+        "  subcontrol-position: top center; "
+        "  padding: 0 3px; "
+        "  background-color: #d0d0d0; "
+        "} "
+        "QGroupBox QLabel, "
+        "QGroupBox QLineEdit, "
+        "QGroupBox QSpinBox, "
+        "QGroupBox QDoubleSpinBox, "
+        "QGroupBox QCheckBox, "
+        "QGroupBox QPushButton { "
+        "  background-color: #d0d0d0; "
+        "}"
+        );
 
 
 
