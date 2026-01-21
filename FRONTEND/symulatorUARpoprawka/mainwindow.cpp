@@ -16,14 +16,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-
-    this->setStyleSheet("QMainWindow { background-color: #d0d0d0; }""QWidget { background-color: #d0d0d0; }"
+    this->setStyleSheet("QMainWindow { background-color: #d0d0d0; }"
+                        "QWidget { background-color: #d0d0d0; }"
                         "QGroupBox { border: 2px solid #2f4f4f; border-radius: "
                         "5px; margin-top: 1ex; padding-top: 10px; } "
                         "QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; "
                         "background-color: #d0d0d0; }");
-
-    //this->setStyleSheet("QMainWindow { background-color: #d0d0d0; }""QWidget { background-color: #d0d0d0; }");
 
     // filtrowanie Entera na spinboxach / comboboxach
     ui->interwalSpinBox->installEventFilter(this);
@@ -53,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
                 if (idx == 0) {
                     m_symulator.ustawGeneratorSinus(A, TRZ, S);
                 } else {
-                    m_symulator.ustawGeneratorProstokat(A, TRZ, p, S);
+                    m_symulator.ustawGeneratorProstokat(A, TRZ, p / 100.0, S);
                 }
             });
 
@@ -75,9 +73,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->regulatorgroupBox->setMinimumHeight(160);
     ui->zapOdczgroupBox->setMinimumHeight(80);
 
-    initPlots();
-    applyTimeWindowToPlots();
-
+    inicjalizujWykresy();
+    zastosujOknoCzasuDoWykresow();
 
     // ====== CONNECTY ======
     connect(ui->StartPB, &QPushButton::clicked,
@@ -91,8 +88,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->ResetPB->setEnabled(false);
 
     connect(&m_symulator, &SymulatorUAR::dataUpdated,
-            this, &MainWindow::updateChart);
-
+            this, &MainWindow::aktualizujWykresy);
 }
 
 MainWindow::~MainWindow()
@@ -104,9 +100,9 @@ MainWindow::~MainWindow()
 // Inicjalizacja wykresów QCustomPlot
 // ===================================================================
 
-void MainWindow::initPlots()
+void MainWindow::inicjalizujWykresy()
 {
-    auto setupPlot = [](QCustomPlot *p, const QString &yLabel)
+    auto skonfigurujPojedynczyWykres = [](QCustomPlot *p, const QString &yLabel)
     {
         p->clearGraphs();
         p->clearItems();
@@ -115,18 +111,18 @@ void MainWindow::initPlots()
         p->yAxis->setRange(-2, 2);
         p->axisRect()->setupFullAxesBox();
 
-        // całkowite wyłączenie interakcji (brak zoomu, dragowania, zaznaczania, scrolla)
-        p->setInteractions(QCP::Interactions());   // żadnych flag[web:183]
+        // całkowite wyłączenie interakcji
+        p->setInteractions(QCP::Interactions());   // brak interakcji [web:6]
 
         p->legend->setVisible(false);
 
-        QColor bg("#d0d0d0");              // ten sam co w MainWindow
+        QColor bg("#d0d0d0");
         p->setBackground(bg);
         p->axisRect()->setBackground(bg);
     };
 
     // ===== PID: P/I/D =====
-    setupPlot(ui->WykresPID, "");
+    skonfigurujPojedynczyWykres(ui->WykresPID, "");
     ui->WykresPID->addGraph(); // P
     ui->WykresPID->graph(0)->setName("Skladowa P");
     ui->WykresPID->graph(0)->setPen(QPen(QColor(255, 0, 0), 2));
@@ -146,7 +142,7 @@ void MainWindow::initPlots()
     ui->WykresPID->graph(2)->setScatterStyle(QCPScatterStyle::ssNone);
 
     // ===== Zadana + regulowana (w + y) =====
-    setupPlot(ui->WykresZadanaRegulowana, "");
+    skonfigurujPojedynczyWykres(ui->WykresZadanaRegulowana, "");
     ui->WykresZadanaRegulowana->addGraph(); // w
     ui->WykresZadanaRegulowana->graph(0)->setName("Wartosc zadana w");
     ui->WykresZadanaRegulowana->graph(0)->setPen(QPen(QColor(255, 165, 0), 2));
@@ -160,7 +156,7 @@ void MainWindow::initPlots()
     ui->WykresZadanaRegulowana->graph(1)->setScatterStyle(QCPScatterStyle::ssNone);
 
     // ===== Uchyb e =====
-    setupPlot(ui->WykresUchyb, "");
+    skonfigurujPojedynczyWykres(ui->WykresUchyb, "");
     ui->WykresUchyb->addGraph();
     ui->WykresUchyb->graph(0)->setName("Uchyb e");
     ui->WykresUchyb->graph(0)->setPen(QPen(QColor(0, 0, 255), 2));
@@ -169,7 +165,7 @@ void MainWindow::initPlots()
     ui->WykresUchyb->yAxis->setLabelColor(QColor(0, 0, 255));
 
     // ===== Sterowanie u =====
-    setupPlot(ui->WykresSterowanie, "");
+    skonfigurujPojedynczyWykres(ui->WykresSterowanie, "");
     ui->WykresSterowanie->addGraph();
     ui->WykresSterowanie->graph(0)->setName("Sterowanie u");
     ui->WykresSterowanie->graph(0)->setPen(QPen(QColor(255, 0, 0), 2));
@@ -183,30 +179,29 @@ void MainWindow::initPlots()
     ui->WykresSterowanie->replot();
 }
 
-
-// Stała „skala czasu trwania” na osi X (0..window)
-void MainWindow::applyTimeWindowToPlots()
+// Stałe okno czasu na osi X (0..czasTrwania)
+void MainWindow::zastosujOknoCzasuDoWykresow()
 {
-    double window = m_symulator.getCzasTrwaniaS();
-    if (window <= 0) window = 1.0;
+    double okno = m_symulator.getCzasTrwaniaS();
+    if (okno <= 0) okno = 1.0;
 
-    ui->WykresPID->xAxis->setRange(0, window);
-    ui->WykresZadanaRegulowana->xAxis->setRange(0, window);
-    ui->WykresUchyb->xAxis->setRange(0, window);
-    ui->WykresSterowanie->xAxis->setRange(0, window);
+    ui->WykresPID->xAxis->setRange(0, okno);
+    ui->WykresZadanaRegulowana->xAxis->setRange(0, okno);
+    ui->WykresUchyb->xAxis->setRange(0, okno);
+    ui->WykresSterowanie->xAxis->setRange(0, okno);
 
     ui->WykresPID->replot();
     ui->WykresZadanaRegulowana->replot();
     ui->WykresUchyb->replot();
     ui->WykresSterowanie->replot();
 
-    QString label = QStringLiteral("t [s]  (okno = %1 s)")
-                        .arg(window, 0, 'f', 0); // bez miejsc po przecinku
+    QString etykieta = QStringLiteral("t [s]  (okno = %1 s)")
+                           .arg(okno, 0, 'f', 0);
 
-    ui->WykresPID->xAxis->setLabel(label);
-    ui->WykresZadanaRegulowana->xAxis->setLabel(label);
-    ui->WykresUchyb->xAxis->setLabel(label);
-    ui->WykresSterowanie->xAxis->setLabel(label);
+    ui->WykresPID->xAxis->setLabel(etykieta);
+    ui->WykresZadanaRegulowana->xAxis->setLabel(etykieta);
+    ui->WykresUchyb->xAxis->setLabel(etykieta);
+    ui->WykresSterowanie->xAxis->setLabel(etykieta);
 }
 
 // ===================================================================
@@ -226,7 +221,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
             else if (obj == ui->czasTrwaniadoubleSpinBox) {
                 double czas = ui->czasTrwaniadoubleSpinBox->value();
                 m_symulator.ustawOknoObserwacji(czas);
-                applyTimeWindowToPlots();
+                zastosujOknoCzasuDoWykresow();
             }
             else if (obj == ui->ogrDolneSpinBox || obj == ui->ogrGornedoubleSpinBox) {
                 double minU = ui->ogrDolneSpinBox->value();
@@ -275,9 +270,9 @@ void MainWindow::on_StartPB_clicked()
 {
     int interwal = ui->interwalSpinBox->value();
 
-    if (m_paused) { // wracamy ze STOP
-        double now = m_symulator.getCzasSymulacji();
-        m_timeOffset += (now - m_pauseStart);
+    if (m_paused) {
+        double teraz = m_symulator.getCzasSymulacji();
+        m_timeOffset += (teraz - m_pauseStart);
         m_paused = false;
     }
 
@@ -309,13 +304,13 @@ void MainWindow::on_ResetPB_clicked()
     ui->ResetPB->setEnabled(true);
 
     // reset czasu
-    m_timeOffset   = 0.0;
-    m_paused       = false;
-    m_pauseStart   = 0.0;
-    m_firstTime    = 0.0;
+    m_timeOffset    = 0.0;
+    m_paused        = false;
+    m_pauseStart    = 0.0;
+    m_firstTime     = 0.0;
     m_haveFirstTime = false;
 
-    auto clearPlot = [](QCustomPlot *p){
+    auto wyczyscWykres = [](QCustomPlot *p){
         if (!p) return;
         const int n = p->graphCount();
         for (int i = 0; i < n; ++i)
@@ -323,32 +318,69 @@ void MainWindow::on_ResetPB_clicked()
         p->replot();
     };
 
-    clearPlot(ui->WykresPID);
-    clearPlot(ui->WykresZadanaRegulowana);
-    clearPlot(ui->WykresUchyb);
-    clearPlot(ui->WykresSterowanie);
+    wyczyscWykres(ui->WykresPID);
+    wyczyscWykres(ui->WykresZadanaRegulowana);
+    wyczyscWykres(ui->WykresUchyb);
+    wyczyscWykres(ui->WykresSterowanie);
 
-    applyTimeWindowToPlots(); // 0..czasTrwania
+    zastosujOknoCzasuDoWykresow();
+}
+
+// ===================================================================
+// Pomocnicze: wygładzanie zakresu Y
+// ===================================================================
+
+static void plynnieUstawZakres(QCPAxis *oś, double docDol, double docGora, double alpha = 0.2)
+{
+    QCPRange r = oś->range();
+    double nowDol  = r.lower + alpha * (docDol  - r.lower);
+    double nowGora = r.upper + alpha * (docGora - r.upper);
+    oś->setRange(nowDol, nowGora);
+}
+
+// min/max tylko z danych w [left, right]
+static bool policzZakresWidoczny(QCPGraph *g, double left, double right,
+                                 double &minY, double &maxY)
+{
+    if (!g) return false;
+    auto *container = g->data().data();
+    if (!container || container->isEmpty()) return false;
+
+    bool pierwszy = true;
+    for (auto it = container->constBegin(); it != container->constEnd(); ++it)
+    {
+        double x = it->key;
+        if (x < left || x > right)
+            continue;
+
+        double y = it->value;
+        if (pierwszy) {
+            minY = maxY = y;
+            pierwszy = false;
+        } else {
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+        }
+    }
+    return !pierwszy;
 }
 
 // ===================================================================
 // Aktualizacja 4 wykresów QCustomPlot
 // ===================================================================
 
-void MainWindow::updateChart(double czas, double)
+void MainWindow::aktualizujWykresy(double czas, double)
 {
     if (!m_symulator.isRunning())
         return;
 
     // czas symulacji po uwzględnieniu pauz
-    double baseTime = czas - m_timeOffset;
-    //zapamiętaj pierwszy czas i „przesuń” go do zera
+    double czasBazowy = czas - m_timeOffset;
     if (!m_haveFirstTime) {
-        m_firstTime = baseTime;
+        m_firstTime = czasBazowy;
         m_haveFirstTime = true;
     }
-    double t = baseTime - m_firstTime;
-    //double t = czas;
+    double t = czasBazowy - m_firstTime;
 
     double w = m_symulator.getWartoscZadana();
     double y = m_symulator.getWartoscRegulowana();
@@ -358,97 +390,97 @@ void MainWindow::updateChart(double czas, double)
     double i = m_symulator.getSkladowaI();
     double d = m_symulator.getSkladowaD();
 
-    const int MAX_POINTS = 5000;
-    double window = m_symulator.getCzasTrwaniaS();
-    if (window <= 0) window = 1.0;
+    const int MAKS_PUNKTOW = 5000;
+    double okno = m_symulator.getCzasTrwaniaS();
+    if (okno <= 0) okno = 1.0;
 
-    double left  = (t < window) ? 0.0 : (t - window);
-    double right = left + window;
-    // dopóki t < window – pokazuj 0..window (wypełnianie od lewej)
-    //double left, right;
-    //if (t < window) {
-    //    left  = 0.0;
-    ///    right = window;
-    //} else {
-    //    // po osiągnięciu pełnego okna – przesuwaj
-    //    left  = t - window;
-    //    right = t;
-    //}
+    double left  = (t < okno) ? 0.0 : (t - okno);
+    double right = left + okno;
 
-    auto trimData = [MAX_POINTS](QCPGraph *g,double minTime)
+    // przycinanie TYLKO po liczbie punktów (bez cięcia po czasie)
+    auto przytnijDane = [MAKS_PUNKTOW](QCPGraph *g)
     {
         if (!g) return;
-        QCPDataContainer<QCPGraphData> *container = g->data().data();
-        //while (!container->isEmpty() && container->constBegin()->key < minTime)
-        //{
-        //    container->remove(container->constBegin()->key);
-        //}
-        //while (container->size() > MAX_POINTS)
-        //    container->remove(container->constBegin()->key);
-        while (container->size() > MAX_POINTS)
-        {
-            //double firstKey = container->constBegin()->key;
-            //container->remove(firstKey);
+        auto *container = g->data().data();
+        if (!container) return;
+
+        while (container->size() > MAKS_PUNKTOW)
             container->remove(container->constBegin()->key);
-        }
     };
 
-    //trim przed
-
-
-
-
-    // PID
+    // ===== PID =====
     ui->WykresPID->graph(0)->addData(t, p);
     ui->WykresPID->graph(1)->addData(t, i);
     ui->WykresPID->graph(2)->addData(t, d);
-    //trimData(ui->WykresPID->graph(0));
-    //trimData(ui->WykresPID->graph(1));
-    //trimData(ui->WykresPID->graph(2));
-    trimData(ui->WykresPID->graph(0),left);
-    trimData(ui->WykresPID->graph(1),left);
-    trimData(ui->WykresPID->graph(2),left);
+    przytnijDane(ui->WykresPID->graph(0));
+    przytnijDane(ui->WykresPID->graph(1));
+    przytnijDane(ui->WykresPID->graph(2));
 
-    ui->WykresPID->yAxis->rescale(true);
-    double lower = qMin(-2.0, ui->WykresPID->yAxis->range().lower);
-    double upper = qMax( 2.0, ui->WykresPID->yAxis->range().upper);
-    ui->WykresPID->yAxis->setRange(lower, upper);
+    double minYpid = 0.0, maxYpid = 0.0;
+    bool mamyZakresPID = false;
+    double mn, mx;
+
+    if (policzZakresWidoczny(ui->WykresPID->graph(0), left, right, mn, mx)) {
+        minYpid = mn; maxYpid = mx; mamyZakresPID = true;
+    }
+    if (policzZakresWidoczny(ui->WykresPID->graph(1), left, right, mn, mx)) {
+        if (!mamyZakresPID) { minYpid = mn; maxYpid = mx; mamyZakresPID = true; }
+        else { if (mn < minYpid) minYpid = mn; if (mx > maxYpid) maxYpid = mx; }
+    }
+    if (policzZakresWidoczny(ui->WykresPID->graph(2), left, right, mn, mx)) {
+        if (!mamyZakresPID) { minYpid = mn; maxYpid = mx; mamyZakresPID = true; }
+        else { if (mn < minYpid) minYpid = mn; if (mx > maxYpid) maxYpid = mx; }
+    }
+
+    if (mamyZakresPID) {
+        double dol = qMin(-2.0, minYpid);
+        double gor = qMax( 2.0, maxYpid);
+        plynnieUstawZakres(ui->WykresPID->yAxis, dol, gor);
+    }
+
     ui->WykresPID->xAxis->setRange(left, right);
     ui->WykresPID->replot();
 
-    // w + y
-
+    // ===== w + y =====
     ui->WykresZadanaRegulowana->graph(0)->addData(t, w);
     ui->WykresZadanaRegulowana->graph(1)->addData(t, y);
-    //trimData(ui->WykresZadanaRegulowana->graph(0));
-    //trimData(ui->WykresZadanaRegulowana->graph(1));
-    trimData(ui->WykresZadanaRegulowana->graph(0),left);
-    trimData(ui->WykresZadanaRegulowana->graph(1),left);
+    przytnijDane(ui->WykresZadanaRegulowana->graph(0));
+    przytnijDane(ui->WykresZadanaRegulowana->graph(1));
 
-    ui->WykresZadanaRegulowana->yAxis->rescale(true);
-    ui->WykresZadanaRegulowana->yAxis->setRange(lower, upper);
+    if (mamyZakresPID) {
+        double dol = qMin(-2.0, minYpid);
+        double gor = qMax( 2.0, maxYpid);
+        ui->WykresZadanaRegulowana->yAxis->setRange(dol, gor);
+    }
+
     ui->WykresZadanaRegulowana->xAxis->setRange(left, right);
     ui->WykresZadanaRegulowana->replot();
 
-    // e
-
+    // ===== e =====
     ui->WykresUchyb->graph(0)->addData(t, e);
-    //trimData(ui->WykresUchyb->graph(0));
-    trimData(ui->WykresUchyb->graph(0),left);
+    przytnijDane(ui->WykresUchyb->graph(0));
 
-    ui->WykresUchyb->yAxis->rescale(true);
-    ui->WykresUchyb->yAxis->setRange(lower, upper);
+    double minE = 0.0, maxE = 0.0;
+    if (policzZakresWidoczny(ui->WykresUchyb->graph(0), left, right, minE, maxE)) {
+        double dol = qMin(-2.0, minE);
+        double gor = qMax( 2.0, maxE);
+        plynnieUstawZakres(ui->WykresUchyb->yAxis, dol, gor);
+    }
+
     ui->WykresUchyb->xAxis->setRange(left, right);
     ui->WykresUchyb->replot();
 
-    // u
-
+    // ===== u =====
     ui->WykresSterowanie->graph(0)->addData(t, u);
-    //trimData(ui->WykresSterowanie->graph(0));
-    trimData(ui->WykresSterowanie->graph(0),left);
+    przytnijDane(ui->WykresSterowanie->graph(0));
 
-    ui->WykresSterowanie->yAxis->rescale(true);
-    ui->WykresSterowanie->yAxis->setRange(lower, upper);
+    double minU = 0.0, maxU = 0.0;
+    if (policzZakresWidoczny(ui->WykresSterowanie->graph(0), left, right, minU, maxU)) {
+        double dol = qMin(-2.0, minU);
+        double gor = qMax( 2.0, maxU);
+        plynnieUstawZakres(ui->WykresSterowanie->yAxis, dol, gor);
+    }
+
     ui->WykresSterowanie->xAxis->setRange(left, right);
     ui->WykresSterowanie->replot();
 }
@@ -563,13 +595,10 @@ void MainWindow::odswiezKontrolkiPoWczytaniu()
     m_arxDialog.setMinMax(cfg.minU, cfg.maxU, cfg.minY, cfg.maxY);
     m_arxDialog.setOgraniczeniaAktywne(cfg.uzywajOgraniczen);
 
-
-    applyTimeWindowToPlots();
-
+    zastosujOknoCzasuDoWykresow();
 }
 
 void MainWindow::on_resetTiTdPIDpushButton_clicked()
 {
     m_symulator.resetujPamiecRegulatora();
 }
-
