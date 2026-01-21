@@ -338,31 +338,46 @@ static void plynnieUstawZakres(QCPAxis *oś, double docDol, double docGora, doub
     oś->setRange(nowDol, nowGora);
 }
 
-// min/max tylko z danych w [left, right]
-static bool policzZakresWidoczny(QCPGraph *g, double left, double right,
-                                 double &minY, double &maxY)
+// Zwraca true, jeśli znaleziono chociaż jeden punkt w oknie [left, right]
+static bool policzZakresWidoczny(QCPGraph *graf, double lewaKrawedz, double prawaKrawedz, double &minY, double &maxY)
 {
-    if (!g) return false;
-    auto *container = g->data().data();
-    if (!container || container->isEmpty()) return false;
+    if (!graf)
+        return false;
 
-    bool pierwszy = true;
-    for (auto it = container->constBegin(); it != container->constEnd(); ++it)
+    auto *dane = graf->data().data();
+    if (!dane || dane->isEmpty())
+        return false;
+
+    bool znalezionoPunkt = false;
+    double lokalneMinY = 0.0;
+    double lokalneMaxY = 0.0;
+
+    for (auto it = dane->constBegin(); it != dane->constEnd(); ++it)
     {
         double x = it->key;
-        if (x < left || x > right)
-            continue;
+        if (x < lewaKrawedz || x > prawaKrawedz)
+            continue; // poza aktualnym oknem czasu – ignorujemy
 
         double y = it->value;
-        if (pierwszy) {
-            minY = maxY = y;
-            pierwszy = false;
+
+        if (!znalezionoPunkt) {
+            // pierwszy punkt w oknie – od niego startujemy min/max
+            lokalneMinY = y;
+            lokalneMaxY = y;
+            znalezionoPunkt = true;
         } else {
-            if (y < minY) minY = y;
-            if (y > maxY) maxY = y;
+            if (y < lokalneMinY) lokalneMinY = y;
+            if (y > lokalneMaxY) lokalneMaxY = y;
         }
     }
-    return !pierwszy;
+
+    if (!znalezionoPunkt)
+        return false;
+
+    // dopiero teraz przepisujemy do parametrów wyjściowych
+    minY = lokalneMinY;
+    maxY = lokalneMaxY;
+    return true;
 }
 
 // ===================================================================
