@@ -138,7 +138,7 @@ private:
     QTimer* m_timer;
     int m_interwalMs = 200;              // interwal w ms
     bool m_czyDziala = false;
-    double m_czasTrwaniaS = 50.0;
+    double m_czasTrwaniaS = 10.0;
 
     double m_okresTRZ = 10.0;
     double m_wypelnienie = 0.5;
