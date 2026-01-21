@@ -339,12 +339,12 @@ static void plynnieUstawZakres(QCPAxis *oś, double docDol, double docGora, doub
 }
 
 // Zwraca true, jeśli znaleziono chociaż jeden punkt w oknie [left, right]
-static bool policzZakresWidoczny(QCPGraph *graf, double lewaKrawedz, double prawaKrawedz, double &minY, double &maxY)
+static bool policzZakresWidoczny(QCPGraph *g, double lewaKrawedz, double prawaKrawedz, double &minY, double &maxY)
 {
-    if (!graf)
+    if (!g)
         return false;
 
-    auto *dane = graf->data().data();
+    auto *dane = g->data().data();
     if (!dane || dane->isEmpty())
         return false;
 
@@ -352,16 +352,15 @@ static bool policzZakresWidoczny(QCPGraph *graf, double lewaKrawedz, double praw
     double lokalneMinY = 0.0;
     double lokalneMaxY = 0.0;
 
-    for (auto it = dane->constBegin(); it != dane->constEnd(); ++it)
+    for (auto i = dane->constBegin(); i != dane->constEnd(); ++i)
     {
-        double x = it->key;
+        double x = i->key;
         if (x < lewaKrawedz || x > prawaKrawedz)
-            continue; // poza aktualnym oknem czasu – ignorujemy
+            continue;
 
-        double y = it->value;
+        double y = i->value;
 
         if (!znalezionoPunkt) {
-            // pierwszy punkt w oknie – od niego startujemy min/max
             lokalneMinY = y;
             lokalneMaxY = y;
             znalezionoPunkt = true;
@@ -370,11 +369,9 @@ static bool policzZakresWidoczny(QCPGraph *graf, double lewaKrawedz, double praw
             if (y > lokalneMaxY) lokalneMaxY = y;
         }
     }
-
     if (!znalezionoPunkt)
         return false;
 
-    // dopiero teraz przepisujemy do parametrów wyjściowych
     minY = lokalneMinY;
     maxY = lokalneMaxY;
     return true;
