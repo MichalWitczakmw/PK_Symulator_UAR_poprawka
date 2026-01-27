@@ -40,6 +40,7 @@ private:
     SymulatorUAR    m_symulator;
     ArxDialog       m_arxDialog;
 
+    QCPItemRect *m_ramkazadanaReg = nullptr;
     // filtr zdarzeń (Enter na spinboxach i innych kontrolkach)
     bool eventFilter(QObject *obj, QEvent *event) override;
 

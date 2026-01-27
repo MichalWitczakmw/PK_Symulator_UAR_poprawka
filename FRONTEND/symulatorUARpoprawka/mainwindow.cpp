@@ -16,6 +16,18 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    if (ui->verticalLayout_8) {
+        // Kolejność w verticalLayout_8:
+        // 0 - QWidget z wykresem zadana/regulowana
+        // 1 - QWidget z wykresem PID
+        // 2 - QWidget z wykresem sterowania
+        // 3 - QWidget z wykresem uchybu
+        ui->verticalLayout_8->setStretch(0, 2);  // główny wykres – większy
+        ui->verticalLayout_8->setStretch(1, 1);  // PID
+        ui->verticalLayout_8->setStretch(2, 1);  // sterowanie
+        ui->verticalLayout_8->setStretch(3, 1);  // uchyb
+    }
+
     this->setStyleSheet("QMainWindow { background-color: #d0d0d0; }"
                         "QWidget { background-color: #d0d0d0; }"
                         "QGroupBox { border: 2px solid #2f4f4f; border-radius: "
@@ -112,7 +124,7 @@ void MainWindow::inicjalizujWykresy()
         p->axisRect()->setupFullAxesBox();
 
         // całkowite wyłączenie interakcji
-        p->setInteractions(QCP::Interactions());   // brak interakcji [web:6]
+        p->setInteractions(QCP::Interactions());
 
         p->legend->setVisible(false);
 
@@ -177,6 +189,8 @@ void MainWindow::inicjalizujWykresy()
     ui->WykresZadanaRegulowana->replot();
     ui->WykresUchyb->replot();
     ui->WykresSterowanie->replot();
+
+
 }
 
 // Stałe okno czasu na osi X (0..czasTrwania)
@@ -305,10 +319,10 @@ void MainWindow::on_ResetPB_clicked()
 
     // reset czasu
     m_przesuniecieCzasu    = 0.0;
-    m_czyWstrzymanie        = false;
-    m_czasStartPauzy   = 0.0;
-    m_czasPierwszy     = 0.0;
-    m_mamyCzasPierwszy = false;
+    m_czyWstrzymanie       = false;
+    m_czasStartPauzy       = 0.0;
+    m_czasPierwszy         = 0.0;
+    m_mamyCzasPierwszy     = false;
 
     auto wyczyscWykres = [](QCustomPlot *p){
         if (!p) return;
@@ -453,22 +467,33 @@ void MainWindow::aktualizujWykresy(double czas, double)
     ui->WykresPID->xAxis->setRange(left, right);
     ui->WykresPID->replot();
 
-    // ===== w + y =====
+    // ===== w + y – niezależny zakres Y =====
     ui->WykresZadanaRegulowana->graph(0)->addData(t, w);
     ui->WykresZadanaRegulowana->graph(1)->addData(t, y);
     przytnijDane(ui->WykresZadanaRegulowana->graph(0));
     przytnijDane(ui->WykresZadanaRegulowana->graph(1));
 
-    if (mamyZakresPID) {
-        double dol = qMin(-2.0, minYpid);
-        double gor = qMax( 2.0, maxYpid);
-        ui->WykresZadanaRegulowana->yAxis->setRange(dol, gor);
+    double minWY = 0.0, maxWY = 0.0;
+    bool mamyZakresWY = false;
+
+    if (policzZakresWidoczny(ui->WykresZadanaRegulowana->graph(0), left, right, mn, mx)) {
+        minWY = mn; maxWY = mx; mamyZakresWY = true;
+    }
+    if (policzZakresWidoczny(ui->WykresZadanaRegulowana->graph(1), left, right, mn, mx)) {
+        if (!mamyZakresWY) { minWY = mn; maxWY = mx; mamyZakresWY = true; }
+        else { if (mn < minWY) minWY = mn; if (mx > maxWY) maxWY = mx; }
+    }
+
+    if (mamyZakresWY) {
+        double dol = qMin(-2.0, minWY);
+        double gor = qMax( 2.0, maxWY);
+        plynnieUstawZakres(ui->WykresZadanaRegulowana->yAxis, dol, gor);
     }
 
     ui->WykresZadanaRegulowana->xAxis->setRange(left, right);
     ui->WykresZadanaRegulowana->replot();
 
-    // ===== e =====
+    // ===== e – własny zakres =====
     ui->WykresUchyb->graph(0)->addData(t, e);
     przytnijDane(ui->WykresUchyb->graph(0));
 
@@ -482,7 +507,7 @@ void MainWindow::aktualizujWykresy(double czas, double)
     ui->WykresUchyb->xAxis->setRange(left, right);
     ui->WykresUchyb->replot();
 
-    // ===== u =====
+    // ===== u – własny zakres =====
     ui->WykresSterowanie->graph(0)->addData(t, u);
     przytnijDane(ui->WykresSterowanie->graph(0));
 
