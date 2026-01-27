@@ -13,7 +13,7 @@ public:
 
     Generator(TypSygnalu typ = TypSygnalu::Sinus,
         double amplituda = 1.0,
-        double okres = 100.0,
+        double okres = 2.0,
         double wypelnienie = 0.5,
         double skladowaStala = 0.0)
         : m_typ(typ),

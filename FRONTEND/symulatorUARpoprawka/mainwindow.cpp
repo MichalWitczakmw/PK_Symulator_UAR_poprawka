@@ -101,6 +101,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(&m_symulator, &SymulatorUAR::dataUpdated,
             this, &MainWindow::aktualizujWykresy);
+
+    ui->OkresdoubleSpinBox->setValue(m_symulator.getOkresTRZ());
+    //ui->wzmacniaczSpinBox->setValue(m_symulator.set)
 }
 
 MainWindow::~MainWindow()
@@ -344,12 +347,34 @@ void MainWindow::on_ResetPB_clicked()
 // Pomocnicze: wygładzanie zakresu Y
 // ===================================================================
 
-static void plynnieUstawZakres(QCPAxis *oś, double docDol, double docGora, double alpha = 0.2)
+static void plynnieUstawZakres(QCPAxis *oś, double docDol, double docGora, double alpha = 0.2, double minAbs = 2.0,double extra  = 0.5)
 {
+    if (docDol == docGora)
+        return;
+
+    // 1) oblicz „docelowy” zakres z zaokrągleniem
+    double minRounded = std::floor(docDol);
+    double maxRounded = std::ceil(docGora);
+
+    // minimalny zakres ±minAbs
+    if (maxRounded <  minAbs) maxRounded  =  minAbs;
+    if (minRounded > -minAbs) minRounded  = -minAbs;
+
+    if (maxRounded >  minAbs)
+        maxRounded += extra;
+    if (minRounded < -minAbs)
+        minRounded -= extra;
+
+    // 2) płynne dojście do tego zakresu
     QCPRange r = oś->range();
-    double nowDol  = r.lower + alpha * (docDol  - r.lower);
-    double nowGora = r.upper + alpha * (docGora - r.upper);
+    double nowDol  = r.lower + alpha * (minRounded - r.lower);
+    double nowGora = r.upper + alpha * (maxRounded - r.upper);
     oś->setRange(nowDol, nowGora);
+    //QCPRange r = oś->range();
+    //double nowDol  = r.lower + alpha * (docDol  - r.lower);
+    //double nowGora = r.upper + alpha * (docGora - r.upper);
+    //oś->setRange(nowDol, nowGora);
+    //oś->setRange(docDol, docGora);
 }
 
 // Zwraca true, jeśli znaleziono chociaż jeden punkt w oknie [left, right]
@@ -394,6 +419,29 @@ static bool policzZakresWidoczny(QCPGraph *g, double lewaKrawedz, double prawaKr
 // ===================================================================
 // Aktualizacja 4 wykresów QCustomPlot
 // ===================================================================
+
+static void ustawZakresZMinSymetrycznym(QCPAxis *oś,
+                                        double minY,
+                                        double maxY,
+                                        double minAbs = 2.0)
+{
+    // 1) jeśli nie ma danych, nic nie robimy
+    if (minY == maxY)
+        return;
+
+    // 2) oblicz skrajne wartości zaokrąglone na zewnątrz
+    // dodatnie w górę, ujemne w dół
+    double minRounded = std::floor(minY);
+    double maxRounded = std::ceil(maxY);
+
+    // 3) wymuś minimalny zakres po wartościach bezwzględnych
+    if (maxRounded <  minAbs) maxRounded  =  minAbs;
+    if (minRounded > -minAbs) minRounded  = -minAbs;
+
+    // 4) ustaw zakres osi
+    oś->setRange(minRounded, maxRounded);
+}
+
 
 void MainWindow::aktualizujWykresy(double czas, double)
 {
@@ -488,6 +536,7 @@ void MainWindow::aktualizujWykresy(double czas, double)
         double dol = qMin(-2.0, minWY);
         double gor = qMax( 2.0, maxWY);
         plynnieUstawZakres(ui->WykresZadanaRegulowana->yAxis, dol, gor);
+        //ustawZakresZMinSymetrycznym(ui->WykresZadanaRegulowana->yAxis, minWY, maxWY, 2.0);
     }
 
     ui->WykresZadanaRegulowana->xAxis->setRange(left, right);
@@ -502,6 +551,7 @@ void MainWindow::aktualizujWykresy(double czas, double)
         double dol = qMin(-2.0, minE);
         double gor = qMax( 2.0, maxE);
         plynnieUstawZakres(ui->WykresUchyb->yAxis, dol, gor);
+        //ustawZakresZMinSymetrycznym(ui->WykresUchyb->yAxis, minE, maxE, 2.0);
     }
 
     ui->WykresUchyb->xAxis->setRange(left, right);
@@ -516,6 +566,7 @@ void MainWindow::aktualizujWykresy(double czas, double)
         double dol = qMin(-2.0, minU);
         double gor = qMax( 2.0, maxU);
         plynnieUstawZakres(ui->WykresSterowanie->yAxis, dol, gor);
+        //ustawZakresZMinSymetrycznym(ui->WykresSterowanie->yAxis, minU, maxU, 2.0);
     }
 
     ui->WykresSterowanie->xAxis->setRange(left, right);

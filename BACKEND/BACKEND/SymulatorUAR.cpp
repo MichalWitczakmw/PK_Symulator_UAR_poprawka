@@ -7,8 +7,9 @@
 SymulatorUAR::SymulatorUAR(QObject* parent)
     : QObject(parent)
     , m_symulacja(
-          Model_ARX({1, -0.4, -0.2}, {0.6,0.2,0.0}, 1, 0.0),
-          Regulator_PID(1.0, 1.0, 0.0),
+          Model_ARX({-0.4, 0.0, 0.0}, {0.6,0.0,0.0}, 1, 0.0),
+          Regulator_PID(0.5, 1.4
+                        , 0.0),
           Generator()
           ),m_timer(new QTimer(this))
 {
@@ -16,10 +17,10 @@ SymulatorUAR::SymulatorUAR(QObject* parent)
     connect(m_timer, &QTimer::timeout, this, &SymulatorUAR::wykonajKrokSymulacji);
 
     // Domyslna konfiguracja wzorcowa do testow
-    ustawWspolczynnikiARX({1, -0.4, -0.2}, {0.6,0.2,0.0}, 1, 0.0);
-    ustawNastawyPID(1.0, 1.0, 0.0);
+    ustawWspolczynnikiARX({-0.4, 0.0, 0.0}, {0.6,0.0,0.0}, 1, 0.0);
+    ustawNastawyPID(0.5, 1.4, 0.0);
     //ustawGeneratorProstokat(1.0, 50.0, 0.5, 0.0);  // TRZ = 50s przy TT=200ms
-    ustawGeneratorSinus(1.0,10,0);
+    ustawGeneratorSinus(2.0,10,0);
 
     m_czasStartu = std::chrono::steady_clock::now();
 
