@@ -22,10 +22,10 @@ MainWindow::MainWindow(QWidget *parent)
         // 1 - QWidget z wykresem PID
         // 2 - QWidget z wykresem sterowania
         // 3 - QWidget z wykresem uchybu
-        ui->verticalLayout_8->setStretch(0, 2);  // główny wykres – większy
-        ui->verticalLayout_8->setStretch(1, 1);  // PID
-        ui->verticalLayout_8->setStretch(2, 1);  // sterowanie
-        ui->verticalLayout_8->setStretch(3, 1);  // uchyb
+        //ui->verticalLayout_8->setStretch(0, 3);  // główny wykres – większy
+        //ui->verticalLayout_8->setStretch(1, 2);  // PID
+        //ui->verticalLayout_8->setStretch(2, 2);  // sterowanie
+        //ui->verticalLayout_8->setStretch(3, 2);  // uchyb
     }
 
     this->setStyleSheet("QMainWindow { background-color: #d0d0d0; }"
