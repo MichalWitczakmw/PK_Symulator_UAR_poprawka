@@ -352,32 +352,6 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="label_6">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string>Ogr Dolne</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_7">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string>Ogr Górne</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
                 <widget class="QLabel" name="label_10">
                  <property name="text">
                   <string/>
@@ -467,50 +441,9 @@
                 </widget>
                </item>
                <item>
-                <widget class="QDoubleSpinBox" name="ogrDolneSpinBox">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimum">
-                  <double>-100.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>0.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.010000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>-10.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QDoubleSpinBox" name="ogrGornedoubleSpinBox">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximum">
-                  <double>100.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.010000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>10.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item>
                 <widget class="QCheckBox" name="CzyCalkacheckBox">
                  <property name="text">
-                  <string>Całkowanie</string>
+                  <string>Całkowanie Wewnętrzne</string>
                  </property>
                  <property name="checked">
                   <bool>false</bool>
@@ -612,7 +545,7 @@
                   </sizepolicy>
                  </property>
                  <property name="text">
-                  <string>Wzmocnienie</string>
+                  <string>Amplituda</string>
                  </property>
                 </widget>
                </item>
@@ -1057,7 +990,7 @@
      <x>0</x>
      <y>0</y>
      <width>1202</width>
-     <height>21</height>
+     <height>17</height>
     </rect>
    </property>
   </widget>

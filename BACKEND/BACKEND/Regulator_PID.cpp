@@ -58,7 +58,8 @@ double Regulator_PID::symuluj(double uchyb)
 
     m_uchybPoprzedni = uchyb;
 
-    return ograniczDoZakresu(czP + czI + czD, m_ogrMin, m_ogrMax);
+    //return ograniczDoZakresu(czP + czI + czD, m_ogrMin, m_ogrMax);
+    return czP + czI + czD;
 }
 
 double Regulator_PID::getSumaE() const { return m_sumUchybow; }

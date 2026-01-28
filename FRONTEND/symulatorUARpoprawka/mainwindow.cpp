@@ -39,8 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->interwalSpinBox->installEventFilter(this);
     ui->czasTrwaniadoubleSpinBox->installEventFilter(this);
 
-    ui->ogrDolneSpinBox->installEventFilter(this);
-    ui->ogrGornedoubleSpinBox->installEventFilter(this);
+    //ui->ogrDolneSpinBox->installEventFilter(this);
+    //ui->ogrGornedoubleSpinBox->installEventFilter(this);
     ui->wzmacniaczSpinBox->installEventFilter(this);
     ui->OkresdoubleSpinBox->installEventFilter(this);
     ui->WypelnieniespinBox->installEventFilter(this);
@@ -71,10 +71,11 @@ MainWindow::MainWindow(QWidget *parent)
             this, [this](bool zaznaczony){
                 m_symulator.ustawTrybCalkowania(
                     zaznaczony
-                        ? Regulator_PID::LiczCalk::Zew
-                        : Regulator_PID::LiczCalk::Wew);
+                        ? Regulator_PID::LiczCalk::Wew
+                        : Regulator_PID::LiczCalk::Zew);
             });
 
+    ui->CzyCalkacheckBox->setChecked((bool)m_symulator.getSymulacja().getRegulator().getLiczCalk());
     connect(&m_symulator, &SymulatorUAR::konfiguracjaWczytana,
             this, &MainWindow::odswiezKontrolkiPoWczytaniu);
 
@@ -240,11 +241,11 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 m_symulator.ustawOknoObserwacji(czas);
                 zastosujOknoCzasuDoWykresow();
             }
-            else if (obj == ui->ogrDolneSpinBox || obj == ui->ogrGornedoubleSpinBox) {
-                double minU = ui->ogrDolneSpinBox->value();
-                double maxU = ui->ogrGornedoubleSpinBox->value();
-                m_symulator.ustawOgraniczeniaRegulatora(minU, maxU);
-            }
+            //else if (obj == ui->ogrDolneSpinBox || obj == ui->ogrGornedoubleSpinBox) {
+                //double minU = ui->ogrDolneSpinBox->value();
+               // double maxU = ui->ogrGornedoubleSpinBox->value();
+                //m_symulator.ustawOgraniczeniaRegulatora(minU, maxU);
+            //}
             else if (obj == ui->TiSpinBox ||
                      obj == ui->TdSpinBox ||
                      obj == ui->KpSpinBox) {
@@ -347,27 +348,27 @@ void MainWindow::on_ResetPB_clicked()
 // Pomocnicze: wygładzanie zakresu Y
 // ===================================================================
 
-static void plynnieUstawZakres(QCPAxis *oś, double docDol, double docGora, double alpha = 0.2, double minAbs = 2.0,double extra  = 0.5)
+static void plynnieUstawZakres(QCPAxis *oś, double docDol, double docGora, double alpha = 0.2, double minAbs = 2.0,double marginesProc = 10.0)
 {
-    if (docDol == docGora)
-        return;
+    if (docDol >= docGora) return;  // brak danych
 
-    // 1) oblicz „docelowy” zakres z zaokrągleniem
-    double minRounded = std::floor(docDol);
-    double maxRounded = std::ceil(docGora);
+    double zakres = docGora - docDol;
+    double padding = zakres * marginesProc / 100.0;
+
+    // 1) docelowy zakres Z 10% MARGINESEM (+extra)
+    double minRounded = std::floor(docDol - padding);
+    double maxRounded = std::ceil(docGora + padding);
 
     // minimalny zakres ±minAbs
-    if (maxRounded <  minAbs) maxRounded  =  minAbs;
-    if (minRounded > -minAbs) minRounded  = -minAbs;
+    if (maxRounded < minAbs) maxRounded = minAbs;
+    if (minRounded > -minAbs) minRounded = -minAbs;
 
-    if (maxRounded >  minAbs)
-        maxRounded += extra;
-    if (minRounded < -minAbs)
-        minRounded -= extra;
+    if (maxRounded > minAbs) maxRounded += 0.5;
+    if (minRounded < -minAbs) minRounded -= 0.5;
 
-    // 2) płynne dojście do tego zakresu
+    // 2) PŁYNNE dojście
     QCPRange r = oś->range();
-    double nowDol  = r.lower + alpha * (minRounded - r.lower);
+    double nowDol = r.lower + alpha * (minRounded - r.lower);
     double nowGora = r.upper + alpha * (maxRounded - r.upper);
     oś->setRange(nowDol, nowGora);
     //QCPRange r = oś->range();
@@ -656,10 +657,10 @@ void MainWindow::odswiezKontrolkiPoWczytaniu()
     ui->KpSpinBox->setValue(reg.getKp());
     ui->TiSpinBox->setValue(reg.getTi());
     ui->TdSpinBox->setValue(reg.getTd());
-    ui->ogrGornedoubleSpinBox->setValue(reg.getOgrMax());
-    ui->ogrDolneSpinBox->setValue(reg.getOgrMin());
+    //ui->ogrGornedoubleSpinBox->setValue(reg.getOgrMax());
+    //ui->ogrDolneSpinBox->setValue(reg.getOgrMin());
     ui->CzyCalkacheckBox->setChecked(
-        reg.getLiczCalk() == Regulator_PID::LiczCalk::Wew);
+        reg.getLiczCalk() == Regulator_PID::LiczCalk::Zew);
 
     const auto& gen = sim.getGenerator();
 
