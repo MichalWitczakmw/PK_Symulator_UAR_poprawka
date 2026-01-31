@@ -3,6 +3,8 @@
 
 #include <QMessageBox>
 #include <QKeyEvent>
+#include <cmath>
+#include <functional>
 
 // ===================================================================
 // Konstruktor
@@ -22,19 +24,26 @@ MainWindow::MainWindow(QWidget *parent)
         // 1 - QWidget z wykresem PID
         // 2 - QWidget z wykresem sterowania
         // 3 - QWidget z wykresem uchybu
+        //ui->verticalLayout_8->setStretch(0, 3); // główny wykres – większy
+        //ui->verticalLayout_8->setStretch(1, 2); // PID
+        //ui->verticalLayout_8->setStretch(2, 2); // sterowanie
+        //ui->verticalLayout_8->setStretch(3, 2); // uchyb
     }
 
-    this->setStyleSheet("QMainWindow { background-color: #d0d0d0; }"
-                        "QWidget { background-color: #d0d0d0; }"
-                        "QGroupBox { border: 2px solid #2f4f4f; border-radius: "
-                        "5px; margin-top: 1ex; padding-top: 10px; } "
-                        "QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; "
-                        "background-color: #d0d0d0; }");
+    this->setStyleSheet(
+        "QMainWindow { background-color: #d0d0d0; }"
+        "QWidget { background-color: #d0d0d0; }"
+        "QGroupBox { border: 2px solid #2f4f4f; border-radius: 5px; margin-top: 1ex; padding-top: 10px; } "
+        "QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; "
+        "background-color: #d0d0d0; }"
+        );
 
     // filtrowanie Entera na spinboxach / comboboxach
     ui->interwalSpinBox->installEventFilter(this);
     ui->czasTrwaniadoubleSpinBox->installEventFilter(this);
 
+    //ui->ogrDolneSpinBox->installEventFilter(this);
+    //ui->ogrGornedoubleSpinBox->installEventFilter(this);
     ui->wzmacniaczSpinBox->installEventFilter(this);
     ui->OkresdoubleSpinBox->installEventFilter(this);
     ui->WypelnieniespinBox->installEventFilter(this);
@@ -44,9 +53,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->TdSpinBox->installEventFilter(this);
     ui->KpSpinBox->installEventFilter(this);
 
+    // ===== CONNECT: wybór typu generatora =====
     connect(ui->typComboBox,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this](int idx){
+            this,
+            [this](int idx)
+            {
                 double A   = ui->wzmacniaczSpinBox->value();
                 double TRZ = ui->OkresdoubleSpinBox->value();
                 double p   = ui->WypelnieniespinBox->value();
@@ -61,8 +73,11 @@ MainWindow::MainWindow(QWidget *parent)
                 }
             });
 
+    // ===== CONNECT: przełączanie trybu całkowania =====
     connect(ui->CzyCalkacheckBox, &QCheckBox::toggled,
-            this, [this](bool zaznaczony){
+            this,
+            [this](bool zaznaczony)
+            {
                 m_symulator.ustawTrybCalkowania(
                     zaznaczony
                         ? Regulator_PID::LiczCalk::Wew
@@ -70,7 +85,8 @@ MainWindow::MainWindow(QWidget *parent)
             });
 
     ui->CzyCalkacheckBox->setChecked(
-        (bool)m_symulator.getSymulacja().getRegulator().getLiczCalk());
+        static_cast<bool>(m_symulator.getSymulacja().getRegulator().getLiczCalk())
+        );
 
     connect(&m_symulator, &SymulatorUAR::konfiguracjaWczytana,
             this, &MainWindow::odswiezKontrolkiPoWczytaniu);
@@ -100,6 +116,7 @@ MainWindow::MainWindow(QWidget *parent)
             this, &MainWindow::aktualizujWykresy);
 
     ui->OkresdoubleSpinBox->setValue(m_symulator.getOkresTRZ());
+    //ui->wzmacniaczSpinBox->setValue(m_symulator.set)
 }
 
 MainWindow::~MainWindow()
@@ -122,7 +139,8 @@ void MainWindow::inicjalizujWykresy()
         p->yAxis->setRange(-2, 2);
         p->axisRect()->setupFullAxesBox();
 
-        p->setInteractions(QCP::Interactions()); // brak interakcji
+        // całkowite wyłączenie interakcji
+        p->setInteractions(QCP::Interactions());
 
         p->legend->setVisible(false);
 
@@ -205,7 +223,7 @@ void MainWindow::zastosujOknoCzasuDoWykresow()
     ui->WykresUchyb->replot();
     ui->WykresSterowanie->replot();
 
-    QString etykieta = QStringLiteral("t [s]  (okno = %1 s)")
+    QString etykieta = QStringLiteral("t [s] (okno = %1 s)")
                            .arg(okno, 0, 'f', 0);
 
     ui->WykresPID->xAxis->setLabel(etykieta);
@@ -232,8 +250,12 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 double czas = ui->czasTrwaniadoubleSpinBox->value();
                 m_symulator.ustawOknoObserwacji(czas);
                 zastosujOknoCzasuDoWykresow();
-                // skalowanie Y zrobi się przy następnym dataUpdated
             }
+            //else if (obj == ui->ogrDolneSpinBox || obj == ui->ogrGornedoubleSpinBox) {
+            //    double minU = ui->ogrDolneSpinBox->value();
+            //    double maxU = ui->ogrGornedoubleSpinBox->value();
+            //    m_symulator.ustawOgraniczeniaRegulatora(minU, maxU);
+            //}
             else if (obj == ui->TiSpinBox ||
                      obj == ui->TdSpinBox ||
                      obj == ui->KpSpinBox) {
@@ -310,9 +332,11 @@ void MainWindow::on_ResetPB_clicked()
     ui->ResetPB->setEnabled(true);
 
     // reset czasu
-    m_przesuniecieCzasu    = 0.0;
-    m_czyWstrzymanie       = false;
-    m_czasStartPauzy       = 0.0;
+    m_przesuniecieCzasu = 0.0;
+    m_czyWstrzymanie = false;
+    m_czasStartPauzy = 0.0;
+    m_czasPierwszy = 0.0;
+    m_mamyCzasPierwszy = false;
 
     auto wyczyscWykres = [](QCustomPlot *p){
         if (!p) return;
@@ -337,24 +361,27 @@ void MainWindow::on_ResetPB_clicked()
 static void plynnieUstawZakres(QCPAxis *oś,
                                double docDol,
                                double docGora,
-                               double alpha = 0.4,
+                               double alpha = 1,
                                double minAbs = 2.0,
                                double marginesProc = 10.0)
 {
-    if (docDol >= docGora) return;  // brak danych
+    if (docDol >= docGora) return; // brak danych
 
     double zakres  = docGora - docDol;
     double padding = zakres * marginesProc / 100.0;
 
+    // 1) docelowy zakres z 10% marginesem
     double minRounded = std::floor(docDol - padding);
     double maxRounded = std::ceil(docGora + padding);
 
-    if (maxRounded <  minAbs) maxRounded =  minAbs;
+    // minimalny zakres ±minAbs
+    if (maxRounded < minAbs) maxRounded = minAbs;
     if (minRounded > -minAbs) minRounded = -minAbs;
 
-    if (maxRounded >  minAbs) maxRounded += 0.5;
+    if (maxRounded > minAbs)  maxRounded += 0.5;
     if (minRounded < -minAbs) minRounded -= 0.5;
 
+    // 2) PŁYNNE dojście
     QCPRange r = oś->range();
     double nowDol  = r.lower + alpha * (minRounded - r.lower);
     double nowGora = r.upper + alpha * (maxRounded - r.upper);
@@ -405,17 +432,43 @@ static bool policzZakresWidoczny(QCPGraph *g,
 }
 
 // ===================================================================
-// Aktualizacja 4 wykresów QCustomPlot (tryb oscyloskop)
+// Aktualizacja 4 wykresów QCustomPlot
 // ===================================================================
+
+static void ustawZakresZMinSymetrycznym(QCPAxis *oś,
+                                        double minY,
+                                        double maxY,
+                                        double minAbs = 2.0)
+{
+    // 1) jeśli nie ma danych, nic nie robimy
+    if (minY == maxY)
+        return;
+
+    // 2) oblicz skrajne wartości zaokrąglone na zewnątrz
+    double minRounded = std::floor(minY);
+    double maxRounded = std::ceil(maxY);
+
+    // 3) wymuś minimalny zakres po wartościach bezwzględnych
+    if (maxRounded < minAbs) maxRounded = minAbs;
+    if (minRounded > -minAbs) minRounded = -minAbs;
+
+    // 4) ustaw zakres osi
+    oś->setRange(minRounded, maxRounded);
+}
+
 
 void MainWindow::aktualizujWykresy(double czas, double)
 {
     if (!m_symulator.isRunning())
         return;
 
-    // czas symulacji z uwzględnieniem pauz
+    // czas symulacji po uwzględnieniu pauz
     double czasBazowy = czas - m_przesuniecieCzasu;
-    double t = czasBazowy;
+    if (!m_mamyCzasPierwszy) {
+        m_czasPierwszy = czasBazowy;
+        m_mamyCzasPierwszy = true;
+    }
+    double t = czasBazowy - m_czasPierwszy;
 
     double w = m_symulator.getWartoscZadana();
     double y = m_symulator.getWartoscRegulowana();
@@ -425,61 +478,48 @@ void MainWindow::aktualizujWykresy(double czas, double)
     double i = m_symulator.getSkladowaI();
     double d = m_symulator.getSkladowaD();
 
+    const int MAKS_PUNKTOW = 5000;
     double okno = m_symulator.getCzasTrwaniaS();
     if (okno <= 0) okno = 1.0;
 
-    // ===== dodanie nowych punktów =====
+    double left  = (t < okno) ? 0.0 : (t - okno);
+    double right = left + okno;
+
+    // przycinanie TYLKO po liczbie punktów (bez cięcia po czasie)
+    std::function<void(QCPGraph*)> przytnijDane =
+        [MAKS_PUNKTOW](QCPGraph *g)
+    {
+        if (!g) return;
+        auto *container = g->data().data();
+        if (!container) return;
+
+        while (container->size() > MAKS_PUNKTOW)
+            container->remove(container->constBegin()->key);
+    };
+
+    // ===== PID =====
     ui->WykresPID->graph(0)->addData(t, p);
     ui->WykresPID->graph(1)->addData(t, i);
     ui->WykresPID->graph(2)->addData(t, d);
+    przytnijDane(ui->WykresPID->graph(0));
+    przytnijDane(ui->WykresPID->graph(1));
+    przytnijDane(ui->WykresPID->graph(2));
 
-    ui->WykresZadanaRegulowana->graph(0)->addData(t, w);
-    ui->WykresZadanaRegulowana->graph(1)->addData(t, y);
-
-    ui->WykresUchyb->graph(0)->addData(t, e);
-    ui->WykresSterowanie->graph(0)->addData(t, u);
-
-    // ===== wyznaczenie okna X (jak w realtimeDataDemo) =====
-    // setRange(key, size, AlignRight) -> okno [t-okno, t]
-    ui->WykresPID->xAxis->setRange(t, okno, Qt::AlignRight);
-    ui->WykresZadanaRegulowana->xAxis->setRange(t, okno, Qt::AlignRight);
-    ui->WykresUchyb->xAxis->setRange(t, okno, Qt::AlignRight);
-    ui->WykresSterowanie->xAxis->setRange(t, okno, Qt::AlignRight);
-
-    double left  = t - okno;
-    double right = t;
-
-    // ===== liczenie min/max tylko w [left,right] (bez wycinania danych) =====
-    auto zbierzMinMax = [&](QCPGraph *g,
-                            double &minY,
-                            double &maxY,
-                            bool &mamyZakres,
-                            double lewa,
-                            double prawa,
-                            double &mn,
-                            double &mx)
-    {
-        if (policzZakresWidoczny(g, lewa, prawa, mn, mx)) {
-            if (!mamyZakres) {
-                minY = mn;
-                maxY = mx;
-                mamyZakres = true;
-            } else {
-                if (mn < minY) minY = mn;
-                if (mx > maxY) maxY = mx;
-            }
-        }
-    };
-
-    double mn = 0.0, mx = 0.0;
-
-    // ===== PID =====
     double minYpid = 0.0, maxYpid = 0.0;
     bool mamyZakresPID = false;
+    double mn, mx;
 
-    zbierzMinMax(ui->WykresPID->graph(0), minYpid, maxYpid, mamyZakresPID, left, right, mn, mx);
-    zbierzMinMax(ui->WykresPID->graph(1), minYpid, maxYpid, mamyZakresPID, left, right, mn, mx);
-    zbierzMinMax(ui->WykresPID->graph(2), minYpid, maxYpid, mamyZakresPID, left, right, mn, mx);
+    if (policzZakresWidoczny(ui->WykresPID->graph(0), left, right, mn, mx)) {
+        minYpid = mn; maxYpid = mx; mamyZakresPID = true;
+    }
+    if (policzZakresWidoczny(ui->WykresPID->graph(1), left, right, mn, mx)) {
+        if (!mamyZakresPID) { minYpid = mn; maxYpid = mx; mamyZakresPID = true; }
+        else { if (mn < minYpid) minYpid = mn; if (mx > maxYpid) maxYpid = mx; }
+    }
+    if (policzZakresWidoczny(ui->WykresPID->graph(2), left, right, mn, mx)) {
+        if (!mamyZakresPID) { minYpid = mn; maxYpid = mx; mamyZakresPID = true; }
+        else { if (mn < minYpid) minYpid = mn; if (mx > maxYpid) maxYpid = mx; }
+    }
 
     if (mamyZakresPID) {
         double dol = qMin(-2.0, minYpid);
@@ -487,41 +527,66 @@ void MainWindow::aktualizujWykresy(double czas, double)
         plynnieUstawZakres(ui->WykresPID->yAxis, dol, gor);
     }
 
-    // ===== w + y =====
+    ui->WykresPID->xAxis->setRange(left, right);
+    ui->WykresPID->replot();
+
+    // ===== w + y – niezależny zakres Y =====
+    ui->WykresZadanaRegulowana->graph(0)->addData(t, w);
+    ui->WykresZadanaRegulowana->graph(1)->addData(t, y);
+    przytnijDane(ui->WykresZadanaRegulowana->graph(0));
+    przytnijDane(ui->WykresZadanaRegulowana->graph(1));
+
     double minWY = 0.0, maxWY = 0.0;
     bool mamyZakresWY = false;
 
-    zbierzMinMax(ui->WykresZadanaRegulowana->graph(0), minWY, maxWY, mamyZakresWY, left, right, mn, mx);
-    zbierzMinMax(ui->WykresZadanaRegulowana->graph(1), minWY, maxWY, mamyZakresWY, left, right, mn, mx);
+    if (policzZakresWidoczny(ui->WykresZadanaRegulowana->graph(0), left, right, mn, mx)) {
+        minWY = mn; maxWY = mx; mamyZakresWY = true;
+    }
+    if (policzZakresWidoczny(ui->WykresZadanaRegulowana->graph(1), left, right, mn, mx)) {
+        if (!mamyZakresWY) { minWY = mn; maxWY = mx; mamyZakresWY = true; }
+        else { if (mn < minWY) minWY = mn; if (mx > maxWY) maxWY = mx; }
+    }
 
     if (mamyZakresWY) {
         double dol = qMin(-2.0, minWY);
         double gor = qMax( 2.0, maxWY);
         plynnieUstawZakres(ui->WykresZadanaRegulowana->yAxis, dol, gor);
+        //ustawZakresZMinSymetrycznym(ui->WykresZadanaRegulowana->yAxis, minWY, maxWY, 2.0);
     }
 
-    // ===== e =====
+    ui->WykresZadanaRegulowana->xAxis->setRange(left, right);
+    ui->WykresZadanaRegulowana->replot();
+
+    // ===== e – własny zakres =====
+    ui->WykresUchyb->graph(0)->addData(t, e);
+    przytnijDane(ui->WykresUchyb->graph(0));
+
     double minE = 0.0, maxE = 0.0;
     if (policzZakresWidoczny(ui->WykresUchyb->graph(0), left, right, minE, maxE)) {
         double dol = qMin(-2.0, minE);
         double gor = qMax( 2.0, maxE);
         plynnieUstawZakres(ui->WykresUchyb->yAxis, dol, gor);
+        //ustawZakresZMinSymetrycznym(ui->WykresUchyb->yAxis, minE, maxE, 2.0);
     }
 
-    // ===== u =====
+    ui->WykresUchyb->xAxis->setRange(left, right);
+    ui->WykresUchyb->replot();
+
+    // ===== u – własny zakres =====
+    ui->WykresSterowanie->graph(0)->addData(t, u);
+    przytnijDane(ui->WykresSterowanie->graph(0));
+
     double minU = 0.0, maxU = 0.0;
     if (policzZakresWidoczny(ui->WykresSterowanie->graph(0), left, right, minU, maxU)) {
         double dol = qMin(-2.0, minU);
         double gor = qMax( 2.0, maxU);
         plynnieUstawZakres(ui->WykresSterowanie->yAxis, dol, gor);
+        //ustawZakresZMinSymetrycznym(ui->WykresSterowanie->yAxis, minU, maxU, 2.0);
     }
 
-    ui->WykresPID->replot();
-    ui->WykresZadanaRegulowana->replot();
-    ui->WykresUchyb->replot();
+    ui->WykresSterowanie->xAxis->setRange(left, right);
     ui->WykresSterowanie->replot();
 }
-
 
 // ===================================================================
 // ARX dialog, zapis/odczyt, odświeżenie kontrolek
@@ -542,15 +607,15 @@ void MainWindow::on_ARXpushButton_clicked()
 
     if (m_arxDialog.exec() == QDialog::Accepted) {
 
-        QString strA      = m_arxDialog.coeffA();
-        QString strB      = m_arxDialog.coeffB();
-        int    delay      = m_arxDialog.delay();
-        double noise      = m_arxDialog.noise();
-        double minU       = m_arxDialog.minU();
-        double maxU       = m_arxDialog.maxU();
-        double minY       = m_arxDialog.minY();
-        double maxY       = m_arxDialog.maxY();
-        bool   useLimits  = m_arxDialog.useLimits();
+        QString strA = m_arxDialog.coeffA();
+        QString strB = m_arxDialog.coeffB();
+        int delay    = m_arxDialog.delay();
+        double noise = m_arxDialog.noise();
+        double minU  = m_arxDialog.minU();
+        double maxU  = m_arxDialog.maxU();
+        double minY  = m_arxDialog.minY();
+        double maxY  = m_arxDialog.maxY();
+        bool useLimits = m_arxDialog.useLimits();
 
         auto blad = m_symulator.konfigurujARX(strA, strB,
                                               delay, noise,
@@ -561,11 +626,11 @@ void MainWindow::on_ARXpushButton_clicked()
             QString msg;
             switch (blad) {
             case SymulatorUAR::BladARX::ZlyFormatA:
-                msg = tr("Niepoprawny format wspolczynnikow A.\n"
+                msg = tr("Niepoprawny format wspolczynnikow A.\\n"
                          "Uzyj formatu: -0.4, -0.4, 0.6");
                 break;
             case SymulatorUAR::BladARX::ZlyFormatB:
-                msg = tr("Niepoprawny format wspolczynnikow B.\n"
+                msg = tr("Niepoprawny format wspolczynnikow B.\\n"
                          "Uzyj formatu: -0.4, -0.4, 0.6");
                 break;
             case SymulatorUAR::BladARX::ZaMaloA:
@@ -606,6 +671,8 @@ void MainWindow::odswiezKontrolkiPoWczytaniu()
     ui->KpSpinBox->setValue(reg.getKp());
     ui->TiSpinBox->setValue(reg.getTi());
     ui->TdSpinBox->setValue(reg.getTd());
+    //ui->ogrGornedoubleSpinBox->setValue(reg.getOgrMax());
+    //ui->ogrDolneSpinBox->setValue(reg.getOgrMin());
     ui->CzyCalkacheckBox->setChecked(
         reg.getLiczCalk() == Regulator_PID::LiczCalk::Zew);
 
