@@ -349,7 +349,7 @@ static std::vector<double> rozdzielWspolczynnik(const QString &text, bool &ok)
 
         if (!okNum) {
             ok = false;
-            result.clear();
+            //result.clear();
             return result;
         }
         result.push_back(val);

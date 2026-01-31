@@ -23,6 +23,7 @@ void SymulacjaUAR::reset()
 {
 	m_regulator.resetPamieci();
 	m_generator.reset();
+    m_model.resetPamieci();
 	m_uchyb = 0.0;
 	m_sterowanie = 0.0;
 	m_wartoscZadana = 0.0;

@@ -72,7 +72,7 @@ ArxDialog::ArxDialog(QWidget *parent)
     ui->lineEditA->setPlaceholderText("-0.4, -0.4, 0.6");
     ui->lineEditB->setPlaceholderText("-0.4, -0.4, 0.6");
 
-    ui->spinBoxOpoznienie->setRange(0, 100);
+    ui->spinBoxOpoznienie->setRange(1, 100);
     ui->spinBoxOpoznienie->setValue(2);
 
     ui->doubleSpinBoxSzum->setDecimals(2);

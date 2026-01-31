@@ -41,6 +41,8 @@ public:
     // Jednokrokowa symulacja
     double symuluj(double sygnalSterujacy);
 
+    void resetPamieci();
+
     // Ustawienia ograniczen
     void setOgrSterowania(double minU, double maxU, bool aktywne = true);
     void setOgrRegulowania(double minY, double maxY, bool aktywne = true);

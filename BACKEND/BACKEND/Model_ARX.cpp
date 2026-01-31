@@ -51,6 +51,13 @@ double Model_ARX::symuluj(double sygnalSterujacy)
     return y;
 }
 
+void Model_ARX::resetPamieci()
+{
+    std::fill(m_buforU.begin(),          m_buforU.end(),          0.0);
+    std::fill(m_buforY.begin(),          m_buforY.end(),          0.0);
+    std::fill(m_buforOpoznienia.begin(), m_buforOpoznienia.end(), 0.0);
+}
+
 // Konfiguracja ograniczen
 void Model_ARX::setOgrSterowania(double minU, double maxU, bool aktywne) 
 {
@@ -73,18 +80,39 @@ void Model_ARX::setOgrRegulowaniaAktywne(bool aktywne)
 void Model_ARX::setA(const std::vector<double>& A) 
 {
     m_wspolczynnikA = A;
-    m_buforY.assign(A.size(), 0.0);
+    //m_buforY.assign(A.size(), 0.0);
 }
 void Model_ARX::setB(const std::vector<double>& B) 
 {
     m_wspolczynnikB = B;
-    m_buforU.assign(B.size(), 0.0);
+    //m_buforU.assign(B.size(), 0.0);
 }
-void Model_ARX::setopoznienieTransport(int opoznienieTransportowe) 
+void Model_ARX::setopoznienieTransport(int opoznienieTransportowe)
 {
-    m_opoznienieTransportowe = std::max(1, opoznienieTransportowe);
-    m_buforOpoznienia.assign(m_opoznienieTransportowe, 0.0);
+    int nowyK = std::max(1, opoznienieTransportowe);
+    if (nowyK == m_opoznienieTransportowe)
+        return; // nic się nie zmieniło
+
+    // dostosuj rozmiar bufora, zachowując ile się da z historii
+    if (nowyK > m_opoznienieTransportowe) {
+        // większe opóźnienie: dokładamy z przodu zera
+        m_buforOpoznienia.insert(
+            m_buforOpoznienia.end(),
+            nowyK - m_opoznienieTransportowe,
+            0.0
+            );
+    } else {
+        // mniejsze opóźnienie: ucinamy najstarsze elementy
+        int roznica = m_opoznienieTransportowe - nowyK;
+        if (roznica >= (int)m_buforOpoznienia.size())
+            m_buforOpoznienia.assign(nowyK, m_buforOpoznienia.front());
+        else
+            m_buforOpoznienia.erase(m_buforOpoznienia.end() - roznica, m_buforOpoznienia.end());
+    }
+
+    m_opoznienieTransportowe = nowyK;
 }
+
 void Model_ARX::setOdchylenieZaklocen(double odchylenieZaklocenia) 
 {
     m_oSSzum = odchylenieZaklocenia;

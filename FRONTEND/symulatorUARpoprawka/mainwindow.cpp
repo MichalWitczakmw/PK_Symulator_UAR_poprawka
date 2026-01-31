@@ -348,7 +348,7 @@ void MainWindow::on_ResetPB_clicked()
 // Pomocnicze: wygładzanie zakresu Y
 // ===================================================================
 
-static void plynnieUstawZakres(QCPAxis *oś, double docDol, double docGora, double alpha = 0.2, double minAbs = 2.0,double marginesProc = 10.0)
+static void plynnieUstawZakres(QCPAxis *oś, double docDol, double docGora, double alpha = 1, double minAbs = 2.0,double marginesProc = 10.0)
 {
     if (docDol >= docGora) return;  // brak danych
 
