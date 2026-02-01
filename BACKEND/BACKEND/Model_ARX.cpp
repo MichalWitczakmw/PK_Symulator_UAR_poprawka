@@ -89,6 +89,7 @@ void Model_ARX::setB(const std::vector<double>& B)
 }
 void Model_ARX::setopoznienieTransport(int opoznienieTransportowe)
 {
+    /*
     int nowyK = std::max(1, opoznienieTransportowe);
     if (nowyK == m_opoznienieTransportowe)
         return; // nic się nie zmieniło
@@ -109,8 +110,18 @@ void Model_ARX::setopoznienieTransport(int opoznienieTransportowe)
         else
             m_buforOpoznienia.erase(m_buforOpoznienia.end() - roznica, m_buforOpoznienia.end());
     }
+    */
+    //m_opoznienieTransportowe = opoznienieTransportowe;
+    //m_buforOpoznienia.push_back(opoznienieTransportowe);
+    //m_buforOpoznienia.pop_back();
+    int nowyK = std::max(1, opoznienieTransportowe);
+    if (nowyK == m_opoznienieTransportowe)
+        return;
 
     m_opoznienieTransportowe = nowyK;
+    // NAJPROSTSZA poprawna wersja: po prostu ustaw nowy rozmiar bufora,
+    // nawet kosztem utraty historii opóźnienia (ale bez psucia U/Y):
+    m_buforOpoznienia.assign(m_opoznienieTransportowe, 0.0);
 }
 
 void Model_ARX::setOdchylenieZaklocen(double odchylenieZaklocenia) 

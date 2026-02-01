@@ -91,7 +91,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&m_symulator, &SymulatorUAR::konfiguracjaWczytana,
             this, &MainWindow::odswiezKontrolkiPoWczytaniu);
 
-    this->resize(1200, 650);
+    this->resize(1200, 700);
 
     ui->symulacjagroupBox->setMinimumHeight(140);
     ui->PIDgroupBox->setMinimumHeight(140);
