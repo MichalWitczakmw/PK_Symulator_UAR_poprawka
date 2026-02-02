@@ -119,9 +119,10 @@ void Model_ARX::setopoznienieTransport(int opoznienieTransportowe)
         return;
 
     m_opoznienieTransportowe = nowyK;
+    double p = m_buforOpoznienia.back();
     // NAJPROSTSZA poprawna wersja: po prostu ustaw nowy rozmiar bufora,
     // nawet kosztem utraty historii opóźnienia (ale bez psucia U/Y):
-    m_buforOpoznienia.assign(m_opoznienieTransportowe, 0.0);
+    m_buforOpoznienia.assign(m_opoznienieTransportowe,p);
 }
 
 void Model_ARX::setOdchylenieZaklocen(double odchylenieZaklocenia) 
