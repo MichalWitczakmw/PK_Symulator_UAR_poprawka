@@ -3,6 +3,7 @@
 
 #include "ui_arxdialog.h"
 #include <QDialog>
+#include <QKeyEvent>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class ArxDialog; }
@@ -58,6 +59,7 @@ private:
     Ui::ArxDialog *ui;
 
     QVector<double> parseCoeffs(const QString &text, bool *ok) const;
+    void keyPressEvent(QKeyEvent *event) override;
 };
 
 #endif // ARXDIALOG_H

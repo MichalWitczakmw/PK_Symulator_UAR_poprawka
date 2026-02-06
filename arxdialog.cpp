@@ -107,6 +107,16 @@ ArxDialog::~ArxDialog()
     delete ui;
 }
 
+void ArxDialog::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+        event->ignore();          // nic nie rób na Enter
+        return;                   // nie wywołujemy QDialog::keyPressEvent
+    }
+
+    QDialog::keyPressEvent(event); // reszta klawiszy normalnie
+}
+
 // Gettery
 
 QString ArxDialog::coeffA() const
